@@ -4,6 +4,8 @@ authors = ["bwty <whalelephant@users.noreply.github.com>"]
 edition = "2018"
 description = "Basic implementation of a CosmWasm-20 regulatory grade token"
 license = "Apache-2.0"
+version = "0.1.0"
+
 
 [lib]
 crate-type = ["cdylib", "rlib"]
