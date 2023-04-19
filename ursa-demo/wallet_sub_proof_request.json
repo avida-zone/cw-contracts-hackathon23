@@ -1,0 +1,7 @@
+{
+  "revealed_attrs": [
+    "controller_addr",
+    "wallet_addr"
+  ],
+  "predicates": []
+}
