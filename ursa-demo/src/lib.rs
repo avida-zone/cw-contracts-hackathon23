@@ -5,9 +5,8 @@ use serde_json;
 use ursa::bn::BigNumber;
 use ursa::cl::issuer::Issuer;
 use ursa::cl::prover::Prover;
-use ursa::cl::verifier::Verifier;
 use ursa::cl::{
-    new_nonce, BlindedCredentialSecrets, BlindedCredentialSecretsCorrectnessProof,
+    BlindedCredentialSecrets, BlindedCredentialSecretsCorrectnessProof,
     CredentialKeyCorrectnessProof, CredentialPrivateKey, CredentialPublicKey, CredentialSchema,
     CredentialSecretsBlindingFactors, CredentialSignature, NonCredentialSchema, Nonce,
     SignatureCorrectnessProof,

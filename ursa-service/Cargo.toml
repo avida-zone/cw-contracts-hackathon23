@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 rocket = {version = "0.5.0-rc.2", features = ["json"] }
-ursa = { git = "https://github.com/whalelephant/ursa", default-features = false, features = ["cl", "serde"], version = "0.3.7"} 
+ursa = { git = "https://github.com/whalelephant/ursa", default-features = false, features = ["cl", "serde"], rev = "7cdccf35fb1a0"} 
 env_logger = "0.9.0"
 log = "0.4.0"
 serde = { version = "1.0"}

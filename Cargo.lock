@@ -39,12 +39,6 @@ dependencies = [
 
 [[package]]
 name = "amcl"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee5cca1ddc8b9dceb55b7f1272a9d1e643d73006f350a20ab4926d24e33f0f0d"
-
-[[package]]
-name = "amcl"
 version = "0.3.0"
 source = "git+https://github.com/whalelephant/incubator-milagro-crypto-rust?branch=onchain#9c48a2ccbb23828b3627e15d389cf67acf8bdda4"
 
@@ -2181,25 +2175,9 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 [[package]]
 name = "ursa"
 version = "0.3.7"
-source = "git+https://github.com/whalelephant/ursa?rev=d7d710eaf#d7d710eafa1a49b8de44dd6b34b22bff6beae00e"
+source = "git+https://github.com/whalelephant/ursa?rev=7cdccf35fb1a0#7cdccf35fb1a074a21b5eaeec003db035ff549fa"
 dependencies = [
- "amcl 0.3.0",
- "failure",
- "lazy_static",
- "log",
- "num-bigint 0.3.0",
- "num-integer",
- "num-traits",
- "serde",
- "sha2 0.9.9",
-]
-
-[[package]]
-name = "ursa"
-version = "0.3.7"
-source = "git+https://github.com/whalelephant/ursa#8a3029f51cb68e5ad528ff905e4931ee865af1e5"
-dependencies = [
- "amcl 0.2.0",
+ "amcl",
  "failure",
  "glass_pumpkin",
  "int_traits",
@@ -2214,6 +2192,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "ursa"
+version = "0.3.7"
+source = "git+https://github.com/whalelephant/ursa?rev=d7d710eaf#d7d710eafa1a49b8de44dd6b34b22bff6beae00e"
+dependencies = [
+ "amcl",
+ "failure",
+ "lazy_static",
+ "log",
+ "num-bigint 0.3.0",
+ "num-integer",
+ "num-traits",
+ "serde",
+ "sha2 0.9.9",
+]
+
+[[package]]
 name = "ursa-demo"
 version = "0.1.0"
 dependencies = [
@@ -2221,7 +2215,7 @@ dependencies = [
  "log",
  "serde",
  "serde_json",
- "ursa 0.3.7 (git+https://github.com/whalelephant/ursa)",
+ "ursa 0.3.7 (git+https://github.com/whalelephant/ursa?rev=7cdccf35fb1a0)",
 ]
 
 [[package]]
@@ -2233,7 +2227,7 @@ dependencies = [
  "rocket",
  "serde",
  "serde_json",
- "ursa 0.3.7 (git+https://github.com/whalelephant/ursa)",
+ "ursa 0.3.7 (git+https://github.com/whalelephant/ursa?rev=7cdccf35fb1a0)",
  "ursa-demo",
 ]
 

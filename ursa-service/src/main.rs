@@ -4,11 +4,11 @@ extern crate rocket;
 use std::fs;
 
 use log::info;
+use rocket::fairing::{Fairing, Info, Kind};
+use rocket::http::Header;
 use rocket::serde::{json::Json, Serialize};
 use rocket::State;
-use rocket::http::Header;
 use rocket::{Request, Response};
-use rocket::fairing::{Fairing, Info, Kind};
 
 use serde_json;
 use ursa::bn::BigNumber;
@@ -32,7 +32,7 @@ impl Fairing for CORS {
     fn info(&self) -> Info {
         Info {
             name: "Add CORS headers to responses",
-            kind: Kind::Response
+            kind: Kind::Response,
         }
     }
 
@@ -347,7 +347,7 @@ fn rocket() -> _ {
     };
 
     rocket::build()
-        .mount("/", routes![credential_definitions, cred_req, gen_proof]).attach(CORS)
+        .mount("/", routes![credential_definitions, cred_req, gen_proof])
+        .attach(CORS)
         .manage(states)
-
 }
