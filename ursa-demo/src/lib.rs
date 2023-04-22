@@ -25,14 +25,15 @@ pub fn data_dir(dir: &str) -> PathBuf {
         .stdout;
     let cargo_path = Path::new(std::str::from_utf8(&output).unwrap().trim());
     let data_path = cargo_path.parent().unwrap().join("data/").join(dir);
+    std::fs::create_dir_all(data_path.clone()).unwrap();
     data_path
 }
 
-const CRED_SCHEMA_PATH: &str = "{}/credential_schema.json";
-const NON_CRED_SCHEMA_PATH: &str = "{}/non_credential_schema.json";
-const CRED_PUB_KEY: &str = "{}/credential_pub_key.json";
-const CRED_PRI_KEY: &str = "{}/credential_priv_key.json";
-const CRED_CORRECTNESS_PATH: &str = "{}/credential_correctness.json";
+const CRED_SCHEMA_PATH: &str = "/credential_schema.json";
+const NON_CRED_SCHEMA_PATH: &str = "/non_credential_schema.json";
+const CRED_PUB_KEY: &str = "/credential_pub_key.json";
+const CRED_PRI_KEY: &str = "/credential_priv_key.json";
+const CRED_CORRECTNESS_PATH: &str = "/credential_correctness.json";
 
 pub fn get_issuer_setup_outputs(
     dir: String,
@@ -45,19 +46,20 @@ pub fn get_issuer_setup_outputs(
 ) {
     let data_dir = data_dir(&dir);
     let path = data_dir.to_str().unwrap();
-    let schema_json = fs::read_to_string(format!(CRED_SCHEMA_PATH, file_prefix)).unwrap();
+    let schema_json = fs::read_to_string(format!("{}{}", path, CRED_SCHEMA_PATH)).unwrap();
     let schema: CredentialSchema = serde_json::from_str(&schema_json).unwrap();
 
-    let non_schema_json = fs::read_to_string(format!(NON_CRED_SCHEMA_PATH, dir)).unwrap();
+    let non_schema_json = fs::read_to_string(format!("{}{}", path, NON_CRED_SCHEMA_PATH)).unwrap();
     let non_schema: NonCredentialSchema = serde_json::from_str(&non_schema_json).unwrap();
 
-    let pk_json = fs::read_to_string(format!(CRED_PUB_KEY, file_prefix)).unwrap();
+    let pk_json = fs::read_to_string(format!("{}{}", path, CRED_PUB_KEY)).unwrap();
     let pk: CredentialPublicKey = serde_json::from_str(&pk_json).unwrap();
 
-    let priv_json = fs::read_to_string(format!(CRED_PRI_KEY, file_prefix)).unwrap();
+    let priv_json = fs::read_to_string(format!("{}{}", path, CRED_PRI_KEY)).unwrap();
     let priv_key: CredentialPrivateKey = serde_json::from_str(&priv_json).unwrap();
 
-    let correctness_json = fs::read_to_string(format!(CRED_CORRECTNESS_PATH, file_prefix)).unwrap();
+    let correctness_json =
+        fs::read_to_string(format!("{}{}", path, CRED_CORRECTNESS_PATH)).unwrap();
 
     let correctness: CredentialKeyCorrectnessProof =
         serde_json::from_str(&correctness_json).unwrap();
@@ -100,31 +102,30 @@ pub fn issuer_set_up(
     info!("credential pub key {:?}", credential_pub_key);
 
     std::fs::write(
-        format!(CRED_SCHEMA_PATH, &dir),
+        format!("{}{}", path, CRED_SCHEMA_PATH),
         serde_json::to_string_pretty(&credential_schema).unwrap(),
     )
     .unwrap();
-
     std::fs::write(
-        format!("{}/{}_non_credential_schema.json", path, file_prefix),
+        format!("{}{}", path, NON_CRED_SCHEMA_PATH),
         serde_json::to_string_pretty(&non_credential_schema).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        format!("{}/{}_credential_pub_key.json", path, file_prefix),
+        format!("{}{}", path, CRED_PUB_KEY),
         serde_json::to_string_pretty(&credential_pub_key).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        format!("{}_credential_priv_key.json", path, file_prefix),
+        format!("{}{}", path, CRED_PRI_KEY),
         serde_json::to_string_pretty(&credential_priv_key).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        format!("{}_credential_key_correctness_proof.json", file_prefix),
+        format!("{}{}", path, CRED_CORRECTNESS_PATH),
         serde_json::to_string_pretty(&cred_key_correctness_proof).unwrap(),
     )
     .unwrap();

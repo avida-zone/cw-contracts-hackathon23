@@ -3,7 +3,9 @@ use ursa::cl::issuer::Issuer;
 use ursa::cl::new_nonce;
 use ursa::cl::prover::Prover;
 use ursa::cl::verifier::Verifier;
-use ursa_demo::{issuer_adds_cred_values_and_signs, issuer_set_up, prover_create_credential_req};
+use ursa_demo::{
+    data_dir, issuer_adds_cred_values_and_signs, issuer_set_up, prover_create_credential_req,
+};
 
 fn main() {
     env_logger::init();
@@ -249,25 +251,32 @@ fn main() {
         )
         .unwrap();
 
-    let verified = proof_verifier.verify(&proof, &proof_request_nonce).unwrap();
+    proof_verifier.verify(&proof, &proof_request_nonce).unwrap();
 
+    let dir = "";
+    let data_dir = data_dir(&dir);
+    let path = data_dir.to_str().unwrap();
     std::fs::write(
-        "proof_req_nonce.json",
+        format!("{}{}", path, "proof_req_nonce.json"),
         serde_json::to_string_pretty(&proof_request_nonce).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        "issuer_sub_proof_request.json",
+        format!("{}{}", path, "issuer_sub_proof_request.json"),
         serde_json::to_string_pretty(&sub_proof_request).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        "wallet_sub_proof_request.json",
+        format!("{}{}", path, "wallet_sub_proof_request.json"),
         serde_json::to_string_pretty(&w_sub_proof_request).unwrap(),
     )
     .unwrap();
 
-    std::fs::write("proof.json", serde_json::to_string_pretty(&proof).unwrap()).unwrap();
+    std::fs::write(
+        format!("{}{}", path, "proof.json",),
+        serde_json::to_string_pretty(&proof).unwrap(),
+    )
+    .unwrap();
 }

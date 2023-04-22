@@ -22,7 +22,8 @@ use ursa::cl::{
     NonCredentialSchema, Nonce, Proof, SignatureCorrectnessProof,
 };
 use ursa_demo::{
-    get_issuer_setup_outputs, issuer_adds_cred_values_and_signs, prover_create_credential_req,
+    data_dir, get_issuer_setup_outputs, issuer_adds_cred_values_and_signs,
+    prover_create_credential_req,
 };
 
 pub struct CORS;
@@ -184,13 +185,17 @@ fn cred_req(
     )
     .unwrap();
 
+    let data_dir = data_dir(&issuer);
+    let path = data_dir.to_str().unwrap();
+
     std::fs::write(
-        format!("{}_credential_sig.json", issuer),
+        format!("{}/credential_sig.json", path),
         serde_json::to_string_pretty(&cred_sig).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
+        format!("{}/credential_values.json", path),
         format!("{}_credential_values.json", issuer),
         serde_json::to_string_pretty(&credential_values).unwrap(),
     )
