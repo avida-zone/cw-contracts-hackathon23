@@ -27,8 +27,7 @@ thiserror = { version = "1.0.23" }
 ursa = { git = "https://github.com/whalelephant/ursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7", rev = "d7d710eaf"}
 # ursa = { path = "../../../../ursa/libursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7" }
 avida-verifier = { path = "../../packages/avida-verifier" }
-# vectis-wallet = { git = "https://github.com/nymlab/vectis", branch = "v1-beta" }
-vectis-wallet = { path = "../../../Nymlab/vectis/packages/vectis"}
+vectis-wallet = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
 
 [dev-dependencies]
 cosmwasm-schema = { version = "1.0.0" }
