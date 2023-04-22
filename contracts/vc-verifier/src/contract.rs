@@ -3,19 +3,25 @@ use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{
     ADMIN, SUB_PROOF_REQ_PARAMS, WALLET_CRED_SCHEMA, WALLET_NON_CRED_SCHEMA, WALLET_SUB_PROOF_REQ,
 };
+use avida_verifier::types::PLUGIN_QUERY_KEY;
+
+use avida_verifier::{
+    plugin_state::SELF_ISSUED_CRED_DEF,
+    types::{BigNumberBytes, SubProofReqParams, WProof},
+};
+
 use cw_storage_plus::KeyDeserialize;
 use ursa::cl::{
     verifier::{ProofVerifier, Verifier},
     CredentialPublicKey, Proof,
 };
-use vectis_proxy::msg::QueryMsg as ProxyQueryMsg;
-use vectis_verifier::types::{BigNumberBytes, SubProofReqParams, WCredentialPubKey, WProof};
+use vectis_wallet::{CONTROLLER, QUERY_PLUGINS};
 
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_binary, Addr, Binary, CanonicalAddr, Deps, DepsMut, Env, MessageInfo, Response, StdError,
-    StdResult, Storage,
+    to_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
+    Storage,
 };
 use cw2::set_contract_version;
 use std::convert::TryInto;
@@ -32,8 +38,13 @@ pub fn instantiate(
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+
     ADMIN.set(deps.branch(), Some(info.sender))?;
+
     // THIS IS THE ISSUE!
+    //
+    // On Instantiation of this onchain verifier,
+    // we set what this verifier wants to verify.
     let params = msg
         .req_params
         .iter()
@@ -73,11 +84,6 @@ pub fn execute(
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::Admin {} => to_binary(&query_admin(deps)?),
-        QueryMsg::Verify {
-            proof,
-            proof_req_nonce,
-            addr,
-        } => to_binary(&query_proof_verify(deps, proof, proof_req_nonce, addr)?),
     }
 }
 
@@ -99,48 +105,29 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 ///   rev_reg_defs: &HashMap<RevocationRegistryId, RevocationRegistryDefinitionV1>,
 ///   rev_regs: &HashMap<RevocationRegistryId, HashMap<u64, RevocationRegistryV1>>) -> IndyResult<bool> {
 ///
-/// The verifier does not have to use any randomness
+/// The verifier does not use any randomness
 pub fn execute_proof_verify(
     deps: DepsMut,
     s_proof: WProof,
     s_proof_req_nonce: BigNumberBytes,
     wallet_addr: Addr,
 ) -> Result<Response, ContractError> {
-    let (wallet_cred_pub_key, controller_addr): (WCredentialPubKey, CanonicalAddr) =
-        deps.querier
-            .query_wasm_smart(wallet_addr, &ProxyQueryMsg::CredentialInfo {})?;
+    let controller = CONTROLLER.query(&deps.querier, wallet_addr.clone())?;
+    let identity_pluging = QUERY_PLUGINS
+        .query(&deps.querier, wallet_addr, PLUGIN_QUERY_KEY)?
+        .ok_or(ContractError::NoIdentityPlugin)?;
+    let wallet_cred_pub_key =
+        SELF_ISSUED_CRED_DEF.query(&deps.querier, deps.api.addr_humanize(&identity_pluging)?)?;
 
     let verified = proof_verify(
         deps.storage,
         s_proof,
         s_proof_req_nonce,
         wallet_cred_pub_key.try_into()?,
-        deps.api.addr_humanize(&controller_addr)?,
+        deps.api.addr_humanize(&controller.addr)?,
     )?;
 
     Ok(Response::default().add_attribute("verified", verified.to_string()))
-}
-
-pub fn query_proof_verify(
-    deps: Deps,
-    s_proof: WProof,
-    s_proof_req_nonce: BigNumberBytes,
-    wallet_addr: Addr,
-) -> StdResult<bool> {
-    let (wallet_cred_pub_key, controller_addr): (WCredentialPubKey, CanonicalAddr) =
-        deps.querier
-            .query_wasm_smart(wallet_addr, &ProxyQueryMsg::CredentialInfo {})?;
-
-    proof_verify(
-        deps.storage,
-        s_proof,
-        s_proof_req_nonce,
-        wallet_cred_pub_key
-            .try_into()
-            .map_err(|_| StdError::generic_err("Conversion error: cred_pub_key"))?,
-        deps.api.addr_humanize(&controller_addr)?,
-    )
-    .map_err(|e| StdError::generic_err(format!("Verification of Proof {}", e)))
 }
 
 fn proof_verify(
@@ -166,8 +153,7 @@ fn proof_verify(
         })
         .ok_or(ContractError::MissingWalletAttr {})?;
 
-    // We should use canonical addr for this
-    // but it is too much work for PoC to figure out how to get that offchain in Ursa-demo
+    // TODO: We should use canonical addr for this
     let user = Addr::from_vec(
         sub_proof
             .primary_proof

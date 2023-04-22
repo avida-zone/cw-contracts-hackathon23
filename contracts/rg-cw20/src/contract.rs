@@ -19,8 +19,8 @@ use crate::enumerable::{query_all_accounts, query_all_allowances};
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{MinterData, TokenInfo, BALANCES, LOGO, MARKETING_INFO, TOKEN_INFO, VERIFIER};
+use avida_verifier::types::{BigNumberBytes, WProof};
 use vc_verifier::msg::QueryMsg as VcVQueryMsg;
-use vectis_verifier::types::{BigNumberBytes, WProof};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:cw20-base";

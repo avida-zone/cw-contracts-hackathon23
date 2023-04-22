@@ -1,10 +1,10 @@
+use avida_verifier::types::SubProofReqParams;
 use cw_controllers::Admin;
 use cw_storage_plus::Item;
 pub use ursa::cl::{
     CredentialPublicKey, CredentialSchema, NonCredentialSchema, RevocationKeyPublic,
     RevocationRegistry, SubProofRequest,
 };
-use vectis_verifier::types::SubProofReqParams;
 
 pub const ADMIN: Admin = Admin::new("admin");
 pub const SUB_PROOF_REQ_PARAMS: Item<Vec<SubProofReqParams>> = Item::new("sub_proof_requests");

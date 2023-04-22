@@ -1,5 +1,5 @@
 [workspace]
-members = ["contracts/vc-verifier", "contracts/tca-cw20", "ursa-demo", "packages/vectis-verifier", "ursa-service"]
+members = ["contracts/*", "ursa-demo", "packages/*", "ursa-service"]
 
 [profile.release.package.vc-verifier]
 codegen-units = 1

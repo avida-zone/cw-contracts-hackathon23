@@ -1,8 +1,8 @@
+use avida_verifier::types::TypeConversionError;
 use cosmwasm_std::StdError;
 use cw_controllers::AdminError;
 use thiserror::Error;
 use ursa::errors::UrsaCryptoError;
-use vectis_verifier::types::TypeConversionError;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum ContractError {
@@ -44,6 +44,9 @@ pub enum ContractError {
 
     #[error("Invalid Wallet Proof")]
     InvalidWalletProof {},
+
+    #[error("No Identity Plugin found on Vectis Account")]
+    NoIdentityPlugin,
 }
 
 impl From<UrsaCryptoError> for ContractError {

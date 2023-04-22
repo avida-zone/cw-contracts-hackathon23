@@ -553,3 +553,5 @@ impl TryFrom<WSubProofReqParams> for SubProofReqParams {
         })
     }
 }
+
+pub const PLUGIN_QUERY_KEY: &str = "anoncreds-pubkey";

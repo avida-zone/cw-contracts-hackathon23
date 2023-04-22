@@ -349,5 +349,4 @@ fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![credential_definitions, cred_req, gen_proof])
         .attach(CORS)
-        .manage(states)
 }

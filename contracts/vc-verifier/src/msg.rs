@@ -3,7 +3,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::error::ContractError;
-use vectis_verifier::types::{
+use avida_verifier::types::{
     BigNumberBytes, WCredentialSchema, WNonCredentialSchema, WProof, WSubProofReq,
     WSubProofReqParams,
 };
@@ -36,12 +36,4 @@ pub enum ExecuteMsg {
 pub enum QueryMsg {
     /// Returns Admin address of this contract
     Admin {},
-    /// Called by other contracts that requires to verify proof that has already been generated offchain
-    /// External Queries may not be able to use it, depending on node query gas limit,
-    /// use `ExecuteMsg::Verify` instead
-    Verify {
-        proof: WProof,
-        proof_req_nonce: BigNumberBytes,
-        addr: Addr,
-    },
 }

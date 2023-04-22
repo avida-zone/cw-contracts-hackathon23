@@ -1,0 +1,23 @@
+[package]
+name = "avida-contracts-multitest"
+authors = ["belsy <belsy@nymlab.it>"]
+version = "0.1.0"
+edition = "2018"
+
+[[test]]
+name = "avida-multi-contracts-integration-tests"
+path = "src/tests/lib.rs"
+
+[dependencies]
+cw-multi-test = "0.16"
+cosmwasm-std = "1.0.1"
+vc-verifier = { path = "../../contracts/vc-verifier" }
+anoncreds-identity-plugin = {path = "../../contracts/identity-plugin"}
+vectis-contract-tests = { path= "../../../Nymlab/vectis/packages/vectis-tests" }
+avida-verifier = { path = "../avida-verifier" }
+serde = { version = "1.0"}
+serde_json = { version = "1.0"}
+# vectis-contract-tests = {git = "https://github.com/nymlab/vectis", rev = "149bdb3"}
+#rg-cw20 = {path = "../../contracts/rg-cw20"}
+
+

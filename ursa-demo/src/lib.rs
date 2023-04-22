@@ -1,4 +1,7 @@
-use std::fs;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use log::info;
 use serde_json;
@@ -12,6 +15,19 @@ use ursa::cl::{
     SignatureCorrectnessProof,
 };
 
+pub fn data_dir() -> PathBuf {
+    let output = std::process::Command::new(env!("CARGO"))
+        .arg("locate-project")
+        .arg("--workspace")
+        .arg("--message-format=plain")
+        .output()
+        .unwrap()
+        .stdout;
+    let cargo_path = Path::new(std::str::from_utf8(&output).unwrap().trim());
+    let data_path = cargo_path.parent().unwrap().join("data");
+    data_path
+}
+
 pub fn get_issuer_setup_outputs(
     file_prefix: String,
 ) -> (
@@ -21,8 +37,11 @@ pub fn get_issuer_setup_outputs(
     CredentialPrivateKey,
     CredentialKeyCorrectnessProof,
 ) {
-    let schema_json = fs::read_to_string(format!("./{}_credential_schema.json", file_prefix))
-        .expect("Unable to read file");
+    let data_dir = data_dir();
+    let path = data_dir.to_str().unwrap();
+    let schema_json =
+        fs::read_to_string(format!("{}/{}_credential_schema.json", path, file_prefix))
+            .expect("Unable to read file");
     let schema: CredentialSchema = serde_json::from_str(&schema_json).expect("Unable to parse");
 
     let non_schema_json =
