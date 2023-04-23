@@ -2,7 +2,7 @@ use crate::types::{
     BigNumberBytes, WCredentialSchema, WNonCredentialSchema, WProof, WSubProofReq,
     WSubProofReqParams,
 };
-use cosmwasm_schema::cw_serde;
+use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::Addr;
 
 #[cw_serde]
@@ -28,7 +28,9 @@ pub enum ExecuteMsg {
 }
 
 #[cw_serde]
+#[derive(QueryResponses)]
 pub enum QueryMsg {
     /// Returns Admin address of this contract
+    #[returns(Addr)]
     Admin {},
 }

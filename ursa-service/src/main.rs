@@ -75,12 +75,12 @@ pub struct States {
 fn credential_definitions(issuer: &str) -> Option<Json<CredentialPublicKey>> {
     match issuer {
         "kyc" => {
-            let (_, _, credential_pub_key, _, _) = get_issuer_setup_outputs("issuer".into());
+            let (_, _, credential_pub_key, _, _, _) = get_issuer_setup_outputs("issuer".into());
 
             Some(Json(credential_pub_key))
         }
         "wallet" => {
-            let (_, _, w_credential_pub_key, _, _) = get_issuer_setup_outputs("wallet".into());
+            let (_, _, w_credential_pub_key, _, _, _) = get_issuer_setup_outputs("wallet".into());
             Some(Json(w_credential_pub_key))
         }
         _ => None,
@@ -309,6 +309,7 @@ fn rocket() -> _ {
         credential_pub_key,
         credential_priv_key,
         credential_key_correctness_proof,
+        _sub_proof_request,
     ) = get_issuer_setup_outputs("issuer".into());
     let (
         w_credential_schema,
@@ -316,6 +317,7 @@ fn rocket() -> _ {
         w_credential_pub_key,
         w_credential_priv_key,
         w_credential_key_correctness_proof,
+        _w_sub_proof_request,
     ) = get_issuer_setup_outputs("wallet".into());
 
     let prover_credential_nonce = new_nonce().unwrap();
