@@ -25,7 +25,7 @@ pub enum ContractError {
 
 #[cw_serde]
 pub struct InstantiateMsg {
-    cred_def: WCredentialPubKey,
+    pub cred_def: WCredentialPubKey,
 }
 
 #[cw_serde]

@@ -5,7 +5,6 @@ use std::{
 
 use log::info;
 use serde_json;
-use ursa::bn::BigNumber;
 use ursa::cl::issuer::Issuer;
 use ursa::cl::prover::Prover;
 use ursa::cl::{
@@ -14,6 +13,7 @@ use ursa::cl::{
     CredentialSecretsBlindingFactors, CredentialSignature, NonCredentialSchema, Nonce,
     SignatureCorrectnessProof,
 };
+use ursa::{bn::BigNumber, cl::SubProofRequest};
 
 pub fn data_dir(dir: &str) -> PathBuf {
     let output = std::process::Command::new(env!("CARGO"))
@@ -29,12 +29,14 @@ pub fn data_dir(dir: &str) -> PathBuf {
     data_path
 }
 
-const CRED_SCHEMA_PATH: &str = "/credential_schema.json";
-const NON_CRED_SCHEMA_PATH: &str = "/non_credential_schema.json";
-const CRED_PUB_KEY: &str = "/credential_pub_key.json";
-const CRED_PRI_KEY: &str = "/credential_priv_key.json";
-const CRED_CORRECTNESS_PATH: &str = "/credential_correctness.json";
+pub const CRED_SCHEMA_PATH: &str = "/credential_schema.json";
+pub const NON_CRED_SCHEMA_PATH: &str = "/non_credential_schema.json";
+pub const CRED_PUB_KEY: &str = "/credential_pub_key.json";
+pub const CRED_PRI_KEY: &str = "/credential_priv_key.json";
+pub const CRED_CORRECTNESS_PATH: &str = "/credential_correctness.json";
+pub const SUB_PROOF_REQ_PATH: &str = "/sub_proof_request.json";
 
+//  Limit: We only support 1 subProofReq per issuer
 pub fn get_issuer_setup_outputs(
     dir: String,
 ) -> (
@@ -43,6 +45,7 @@ pub fn get_issuer_setup_outputs(
     CredentialPublicKey,
     CredentialPrivateKey,
     CredentialKeyCorrectnessProof,
+    SubProofRequest,
 ) {
     let data_dir = data_dir(&dir);
     let path = data_dir.to_str().unwrap();
@@ -60,11 +63,13 @@ pub fn get_issuer_setup_outputs(
 
     let correctness_json =
         fs::read_to_string(format!("{}{}", path, CRED_CORRECTNESS_PATH)).unwrap();
-
     let correctness: CredentialKeyCorrectnessProof =
         serde_json::from_str(&correctness_json).unwrap();
 
-    (schema, non_schema, pk, priv_key, correctness)
+    let sub_proof_req_json = fs::read_to_string(format!("{}{}", path, SUB_PROOF_REQ_PATH)).unwrap();
+    let sub_proof_req: SubProofRequest = serde_json::from_str(&sub_proof_req_json).unwrap();
+
+    (schema, non_schema, pk, priv_key, correctness, sub_proof_req)
 }
 
 pub fn issuer_set_up(

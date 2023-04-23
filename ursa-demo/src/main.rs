@@ -222,6 +222,22 @@ fn main() {
         )
         .unwrap();
 
+    let issuer_dir = data_dir("issuer");
+    let issuer_path = issuer_dir.to_str().unwrap();
+    std::fs::write(
+        format!("{}{}", issuer_path, "sub_proof_request.json"),
+        serde_json::to_string_pretty(&sub_proof_request).unwrap(),
+    )
+    .unwrap();
+
+    let wallet_dir = data_dir("wallet");
+    let wallet_path = wallet_dir.to_str().unwrap();
+    std::fs::write(
+        format!("{}{}", wallet_path, "sub_proof_request.json"),
+        serde_json::to_string_pretty(&w_sub_proof_request).unwrap(),
+    )
+    .unwrap();
+
     let proof_request_nonce = new_nonce().unwrap();
     let proof = proof_builder.finalize(&proof_request_nonce).unwrap();
 
@@ -257,25 +273,13 @@ fn main() {
     let data_dir = data_dir(&dir);
     let path = data_dir.to_str().unwrap();
     std::fs::write(
-        format!("{}{}", path, "proof_req_nonce.json"),
+        format!("{}/{}", path, "proof_req_nonce.json"),
         serde_json::to_string_pretty(&proof_request_nonce).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        format!("{}{}", path, "issuer_sub_proof_request.json"),
-        serde_json::to_string_pretty(&sub_proof_request).unwrap(),
-    )
-    .unwrap();
-
-    std::fs::write(
-        format!("{}{}", path, "wallet_sub_proof_request.json"),
-        serde_json::to_string_pretty(&w_sub_proof_request).unwrap(),
-    )
-    .unwrap();
-
-    std::fs::write(
-        format!("{}{}", path, "proof.json",),
+        format!("{}/{}", path, "proof.json",),
         serde_json::to_string_pretty(&proof).unwrap(),
     )
     .unwrap();

@@ -144,6 +144,7 @@ dependencies = [
  "serde_json",
  "vc-verifier",
  "vectis-contract-tests",
+ "vectis-wallet 0.1.0 (git+https://github.com/nymlab/vectis?rev=806d189bf4f89)",
 ]
 
 [[package]]
@@ -155,8 +156,9 @@ dependencies = [
  "cw-storage-plus",
  "schemars",
  "serde",
+ "serde_json",
  "thiserror",
- "ursa 0.3.7 (git+https://github.com/whalelephant/ursa?rev=d7d710eaf)",
+ "ursa",
 ]
 
 [[package]]
@@ -2599,26 +2601,11 @@ dependencies = [
  "int_traits",
  "lazy_static",
  "log",
+ "num-bigint 0.3.0",
  "num-bigint 0.3.3",
  "num-integer",
  "num-traits",
  "rand 0.7.3",
- "serde",
- "sha2 0.9.9",
-]
-
-[[package]]
-name = "ursa"
-version = "0.3.7"
-source = "git+https://github.com/whalelephant/ursa?rev=d7d710eaf#d7d710eafa1a49b8de44dd6b34b22bff6beae00e"
-dependencies = [
- "amcl",
- "failure",
- "lazy_static",
- "log",
- "num-bigint 0.3.0",
- "num-integer",
- "num-traits",
  "serde",
  "sha2 0.9.9",
 ]
@@ -2631,7 +2618,7 @@ dependencies = [
  "log",
  "serde",
  "serde_json",
- "ursa 0.3.7 (git+https://github.com/whalelephant/ursa?rev=7cdccf35fb1a0)",
+ "ursa",
 ]
 
 [[package]]
@@ -2643,7 +2630,7 @@ dependencies = [
  "rocket",
  "serde",
  "serde_json",
- "ursa 0.3.7 (git+https://github.com/whalelephant/ursa?rev=7cdccf35fb1a0)",
+ "ursa",
  "ursa-demo",
 ]
 
@@ -2670,7 +2657,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
- "ursa 0.3.7 (git+https://github.com/whalelephant/ursa?rev=d7d710eaf)",
+ "ursa",
  "vectis-wallet 0.1.0 (git+https://github.com/nymlab/vectis?rev=806d189bf4f89)",
 ]
 

@@ -196,7 +196,6 @@ fn cred_req(
 
     std::fs::write(
         format!("{}/credential_values.json", path),
-        format!("{}_credential_values.json", issuer),
         serde_json::to_string_pretty(&credential_values).unwrap(),
     )
     .unwrap();
@@ -213,19 +212,10 @@ struct ProofData {
 
 #[get("/generateproof")]
 fn gen_proof(states: &State<States>) -> Json<ProofData> {
-    let mut sub_proof_request_builder = Verifier::new_sub_proof_request_builder().unwrap();
-    for attr in schema_attrs.clone() {
-        sub_proof_request_builder.add_revealed_attr(&attr).unwrap();
-    }
-    let sub_proof_request = sub_proof_request_builder.finalize().unwrap();
-
-    let mut w_sub_proof_request_builder = Verifier::new_sub_proof_request_builder().unwrap();
-    for attr in w_schema_attrs.clone() {
-        w_sub_proof_request_builder
-            .add_revealed_attr(&attr)
-            .unwrap();
-    }
-    let w_sub_proof_request = w_sub_proof_request_builder.finalize().unwrap();
+    let issuer_data = get_issuer_setup_outputs(String::from("issuer"));
+    let wallet_data = get_issuer_setup_outputs(String::from("wallet"));
+    let sub_proof_request = issuer_data.5;
+    let w_sub_proof_request = wallet_data.5;
 
     let issuer_sig_json =
         fs::read_to_string("./kyc_credential_sig.json").expect("Unable to read file");

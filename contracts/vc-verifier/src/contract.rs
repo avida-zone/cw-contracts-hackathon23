@@ -106,6 +106,8 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 ///   rev_regs: &HashMap<RevocationRegistryId, HashMap<u64, RevocationRegistryV1>>) -> IndyResult<bool> {
 ///
 /// The verifier does not use any randomness
+///
+/// TODO: use valid nonce
 pub fn execute_proof_verify(
     deps: DepsMut,
     s_proof: WProof,
