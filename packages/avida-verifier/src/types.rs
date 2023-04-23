@@ -67,6 +67,22 @@ impl TryFrom<BigNumberBytes> for BigNumber {
     }
 }
 
+impl TryFrom<BigNumber> for BigNumberBytes {
+    type Error = TypeConversionError;
+    fn try_from(value: BigNumber) -> Result<Self, Self::Error> {
+        let bns = value.to_dec()?;
+        Ok(BigNumberBytes(bns))
+    }
+}
+
+impl TryFrom<&BigNumber> for BigNumberBytes {
+    type Error = TypeConversionError;
+    fn try_from(value: &BigNumber) -> Result<Self, Self::Error> {
+        let bns = value.to_dec()?;
+        Ok(BigNumberBytes(bns))
+    }
+}
+
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone, PartialEq)]
 pub struct WBTreeSet<T: Ord>(Vec<T>);
 
@@ -112,6 +128,19 @@ impl TryFrom<WMap> for HashMap<String, BigNumber> {
             map.insert(s, bn);
         }
         Ok(map)
+    }
+}
+
+impl TryFrom<HashMap<String, BigNumber>> for WMap {
+    type Error = TypeConversionError;
+
+    fn try_from(value: HashMap<String, BigNumber>) -> Result<Self, Self::Error> {
+        let mut rec: Vec<Record<BigNumberBytes>> = Vec::new();
+        for (k, v) in value.iter() {
+            let r = (k.as_bytes().to_vec(), BigNumberBytes::try_from(v)?);
+            rec.push(r);
+        }
+        Ok(WMap(rec))
     }
 }
 
@@ -267,15 +296,29 @@ impl TryFrom<WCredentialPubKey> for CredentialPublicKey {
     type Error = TypeConversionError;
 
     fn try_from(value: WCredentialPubKey) -> Result<Self, Self::Error> {
-        if let Some(r) = value.r_key {
-            Ok(CredentialPublicKey {
-                p_key: value.p_key.try_into()?,
-                r_key: Some(r.try_into().map_err(|_| {
-                    TypeConversionError::Conversion("CredentialPublicKey.r_key".to_string())
-                })?),
-            })
+        if value.r_key.is_some() {
+            Err(TypeConversionError::Conversion(String::from(
+                "revocation not supported",
+            )))
         } else {
             Ok(CredentialPublicKey {
+                p_key: value.p_key.try_into()?,
+                r_key: None,
+            })
+        }
+    }
+}
+
+impl TryFrom<CredentialPublicKey> for WCredentialPubKey {
+    type Error = TypeConversionError;
+
+    fn try_from(value: CredentialPublicKey) -> Result<Self, Self::Error> {
+        if value.r_key.is_some() {
+            Err(TypeConversionError::Conversion(String::from(
+                "revocation not supported",
+            )))
+        } else {
+            Ok(WCredentialPubKey {
                 p_key: value.p_key.try_into()?,
                 r_key: None,
             })
@@ -289,6 +332,9 @@ pub struct WCredentialPrimaryPubKey {
     s: BigNumberBytes,
     // https://docs.rs/cosmwasm-std/latest/cosmwasm_std/type.Record.html#
     // Record key is also binary
+    // We cannot set it as a type because this is the req key value,
+    // it is dependent on the schema,
+    // underneath it is a `Record`, a vec
     r: WMap,
     rctxt: BigNumberBytes,
     z: BigNumberBytes,
@@ -298,6 +344,19 @@ impl TryFrom<WCredentialPrimaryPubKey> for CredentialPrimaryPublicKey {
     type Error = TypeConversionError;
     fn try_from(v: WCredentialPrimaryPubKey) -> Result<Self, Self::Error> {
         Ok(CredentialPrimaryPublicKey {
+            n: v.n.try_into()?,
+            s: v.s.try_into()?,
+            r: v.r.try_into()?,
+            rctxt: v.rctxt.try_into()?,
+            z: v.z.try_into()?,
+        })
+    }
+}
+
+impl TryFrom<CredentialPrimaryPublicKey> for WCredentialPrimaryPubKey {
+    type Error = TypeConversionError;
+    fn try_from(v: CredentialPrimaryPublicKey) -> Result<Self, Self::Error> {
+        Ok(WCredentialPrimaryPubKey {
             n: v.n.try_into()?,
             s: v.s.try_into()?,
             r: v.r.try_into()?,

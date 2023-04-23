@@ -1,6 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use vc_verifier::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use anoncreds_identity_plugin::contract::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 fn main() {
     write_api! {

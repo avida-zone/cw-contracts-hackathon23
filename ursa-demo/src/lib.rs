@@ -5,7 +5,6 @@ use std::{
 
 use log::info;
 use serde_json;
-use ursa::bn::BigNumber;
 use ursa::cl::issuer::Issuer;
 use ursa::cl::prover::Prover;
 use ursa::cl::{
@@ -14,8 +13,9 @@ use ursa::cl::{
     CredentialSecretsBlindingFactors, CredentialSignature, NonCredentialSchema, Nonce,
     SignatureCorrectnessProof,
 };
+use ursa::{bn::BigNumber, cl::SubProofRequest};
 
-pub fn data_dir() -> PathBuf {
+pub fn data_dir(dir: &str) -> PathBuf {
     let output = std::process::Command::new(env!("CARGO"))
         .arg("locate-project")
         .arg("--workspace")
@@ -24,55 +24,58 @@ pub fn data_dir() -> PathBuf {
         .unwrap()
         .stdout;
     let cargo_path = Path::new(std::str::from_utf8(&output).unwrap().trim());
-    let data_path = cargo_path.parent().unwrap().join("data");
+    let data_path = cargo_path.parent().unwrap().join("data/").join(dir);
+    std::fs::create_dir_all(data_path.clone()).unwrap();
     data_path
 }
 
+pub const CRED_SCHEMA_PATH: &str = "/credential_schema.json";
+pub const NON_CRED_SCHEMA_PATH: &str = "/non_credential_schema.json";
+pub const CRED_PUB_KEY: &str = "/credential_pub_key.json";
+pub const CRED_PRI_KEY: &str = "/credential_priv_key.json";
+pub const CRED_CORRECTNESS_PATH: &str = "/credential_correctness.json";
+pub const SUB_PROOF_REQ_PATH: &str = "/sub_proof_request.json";
+
+//  Limit: We only support 1 subProofReq per issuer
 pub fn get_issuer_setup_outputs(
-    file_prefix: String,
+    dir: String,
 ) -> (
     CredentialSchema,
     NonCredentialSchema,
     CredentialPublicKey,
     CredentialPrivateKey,
     CredentialKeyCorrectnessProof,
+    SubProofRequest,
 ) {
-    let data_dir = data_dir();
+    let data_dir = data_dir(&dir);
     let path = data_dir.to_str().unwrap();
-    let schema_json =
-        fs::read_to_string(format!("{}/{}_credential_schema.json", path, file_prefix))
-            .expect("Unable to read file");
-    let schema: CredentialSchema = serde_json::from_str(&schema_json).expect("Unable to parse");
+    let schema_json = fs::read_to_string(format!("{}{}", path, CRED_SCHEMA_PATH)).unwrap();
+    let schema: CredentialSchema = serde_json::from_str(&schema_json).unwrap();
 
-    let non_schema_json =
-        fs::read_to_string(format!("./{}_non_credential_schema.json", file_prefix))
-            .expect("Unable to read file");
-    let non_schema: NonCredentialSchema =
-        serde_json::from_str(&non_schema_json).expect("Unable to parse");
+    let non_schema_json = fs::read_to_string(format!("{}{}", path, NON_CRED_SCHEMA_PATH)).unwrap();
+    let non_schema: NonCredentialSchema = serde_json::from_str(&non_schema_json).unwrap();
 
-    let pk_json = fs::read_to_string(format!("./{}_credential_pub_key.json", file_prefix))
-        .expect("Unable to read file");
-    let pk: CredentialPublicKey = serde_json::from_str(&pk_json).expect("Unable to parse");
+    let pk_json = fs::read_to_string(format!("{}{}", path, CRED_PUB_KEY)).unwrap();
+    let pk: CredentialPublicKey = serde_json::from_str(&pk_json).unwrap();
 
-    let priv_json = fs::read_to_string(format!("./{}_credential_priv_key.json", file_prefix))
-        .expect("Unable to read file");
-    let priv_key: CredentialPrivateKey = serde_json::from_str(&priv_json).expect("Unable to parse");
+    let priv_json = fs::read_to_string(format!("{}{}", path, CRED_PRI_KEY)).unwrap();
+    let priv_key: CredentialPrivateKey = serde_json::from_str(&priv_json).unwrap();
 
-    let correctness_json = fs::read_to_string(format!(
-        "./{}_credential_key_correctness_proof.json",
-        file_prefix
-    ))
-    .expect("Unable to read file");
+    let correctness_json =
+        fs::read_to_string(format!("{}{}", path, CRED_CORRECTNESS_PATH)).unwrap();
     let correctness: CredentialKeyCorrectnessProof =
-        serde_json::from_str(&correctness_json).expect("Unable to parse");
+        serde_json::from_str(&correctness_json).unwrap();
 
-    (schema, non_schema, pk, priv_key, correctness)
+    let sub_proof_req_json = fs::read_to_string(format!("{}{}", path, SUB_PROOF_REQ_PATH)).unwrap();
+    let sub_proof_req: SubProofRequest = serde_json::from_str(&sub_proof_req_json).unwrap();
+
+    (schema, non_schema, pk, priv_key, correctness, sub_proof_req)
 }
 
 pub fn issuer_set_up(
     schema_attrs: Vec<&str>,
     non_schema_attrs: Vec<&str>,
-    file_prefix: String,
+    dir: String,
 ) -> (
     CredentialSchema,
     NonCredentialSchema,
@@ -95,37 +98,39 @@ pub fn issuer_set_up(
     let non_credential_schema = non_credential_schema_builder.finalize().unwrap();
     info!("non credential schema {:?}", non_credential_schema);
 
+    let data_dir = data_dir(&dir);
+    let path = data_dir.to_str().unwrap();
+
     // Credential definition
     let (credential_pub_key, credential_priv_key, cred_key_correctness_proof) =
         Issuer::new_credential_def(&credential_schema, &non_credential_schema, false).unwrap();
     info!("credential pub key {:?}", credential_pub_key);
 
     std::fs::write(
-        format!("{}_credential_schema.json", file_prefix),
+        format!("{}{}", path, CRED_SCHEMA_PATH),
         serde_json::to_string_pretty(&credential_schema).unwrap(),
     )
     .unwrap();
-
     std::fs::write(
-        format!("{}_non_credential_schema.json", file_prefix),
+        format!("{}{}", path, NON_CRED_SCHEMA_PATH),
         serde_json::to_string_pretty(&non_credential_schema).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        format!("{}_credential_pub_key.json", file_prefix),
+        format!("{}{}", path, CRED_PUB_KEY),
         serde_json::to_string_pretty(&credential_pub_key).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        format!("{}_credential_priv_key.json", file_prefix),
+        format!("{}{}", path, CRED_PRI_KEY),
         serde_json::to_string_pretty(&credential_priv_key).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        format!("{}_credential_key_correctness_proof.json", file_prefix),
+        format!("{}{}", path, CRED_CORRECTNESS_PATH),
         serde_json::to_string_pretty(&cred_key_correctness_proof).unwrap(),
     )
     .unwrap();

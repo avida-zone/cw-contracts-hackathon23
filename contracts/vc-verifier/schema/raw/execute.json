@@ -1,45 +1,54 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "QueryMsg",
+  "title": "ExecuteMsg",
   "oneOf": [
     {
-      "description": "Returns Admin address of this contract",
+      "description": "Called by prover where proof has already been generated offchain This does not change state but will emit an event",
       "type": "object",
       "required": [
-        "Admin"
+        "verify"
       ],
       "properties": {
-        "Admin": {
-          "type": "object"
-        }
-      },
-      "additionalProperties": false
-    },
-    {
-      "description": "Called by other contracts that requires to verify proof that has already been generated offchain External Queries may not be able to use it, depending on node query gas limit, use `ExecuteMsg::Verify` instead",
-      "type": "object",
-      "required": [
-        "Verify"
-      ],
-      "properties": {
-        "Verify": {
+        "verify": {
           "type": "object",
           "required": [
-            "addr",
             "proof",
-            "proof_req_nonce"
+            "proof_req_nonce",
+            "wallet_addr"
           ],
           "properties": {
-            "addr": {
-              "$ref": "#/definitions/Addr"
-            },
             "proof": {
               "$ref": "#/definitions/WProof"
             },
             "proof_req_nonce": {
               "$ref": "#/definitions/BigNumberBytes"
+            },
+            "wallet_addr": {
+              "$ref": "#/definitions/Addr"
             }
-          }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "update_admin"
+      ],
+      "properties": {
+        "update_admin": {
+          "type": "object",
+          "properties": {
+            "new_admin": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -54,7 +63,7 @@
       "type": "string"
     },
     "Binary": {
-      "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>",
+      "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.",
       "type": "string"
     },
     "PointG1Bytes": {

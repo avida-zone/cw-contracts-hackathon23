@@ -22,7 +22,8 @@ use ursa::cl::{
     NonCredentialSchema, Nonce, Proof, SignatureCorrectnessProof,
 };
 use ursa_demo::{
-    get_issuer_setup_outputs, issuer_adds_cred_values_and_signs, prover_create_credential_req,
+    data_dir, get_issuer_setup_outputs, issuer_adds_cred_values_and_signs,
+    prover_create_credential_req,
 };
 
 pub struct CORS;
@@ -74,12 +75,12 @@ pub struct States {
 fn credential_definitions(issuer: &str) -> Option<Json<CredentialPublicKey>> {
     match issuer {
         "kyc" => {
-            let (_, _, credential_pub_key, _, _) = get_issuer_setup_outputs("issuer".into());
+            let (_, _, credential_pub_key, _, _, _) = get_issuer_setup_outputs("issuer".into());
 
             Some(Json(credential_pub_key))
         }
         "wallet" => {
-            let (_, _, w_credential_pub_key, _, _) = get_issuer_setup_outputs("wallet".into());
+            let (_, _, w_credential_pub_key, _, _, _) = get_issuer_setup_outputs("wallet".into());
             Some(Json(w_credential_pub_key))
         }
         _ => None,
@@ -184,14 +185,17 @@ fn cred_req(
     )
     .unwrap();
 
+    let data_dir = data_dir(&issuer);
+    let path = data_dir.to_str().unwrap();
+
     std::fs::write(
-        format!("{}_credential_sig.json", issuer),
+        format!("{}/credential_sig.json", path),
         serde_json::to_string_pretty(&cred_sig).unwrap(),
     )
     .unwrap();
 
     std::fs::write(
-        format!("{}_credential_values.json", issuer),
+        format!("{}/credential_values.json", path),
         serde_json::to_string_pretty(&credential_values).unwrap(),
     )
     .unwrap();
@@ -208,19 +212,10 @@ struct ProofData {
 
 #[get("/generateproof")]
 fn gen_proof(states: &State<States>) -> Json<ProofData> {
-    let mut sub_proof_request_builder = Verifier::new_sub_proof_request_builder().unwrap();
-    for attr in schema_attrs.clone() {
-        sub_proof_request_builder.add_revealed_attr(&attr).unwrap();
-    }
-    let sub_proof_request = sub_proof_request_builder.finalize().unwrap();
-
-    let mut w_sub_proof_request_builder = Verifier::new_sub_proof_request_builder().unwrap();
-    for attr in w_schema_attrs.clone() {
-        w_sub_proof_request_builder
-            .add_revealed_attr(&attr)
-            .unwrap();
-    }
-    let w_sub_proof_request = w_sub_proof_request_builder.finalize().unwrap();
+    let issuer_data = get_issuer_setup_outputs(String::from("issuer"));
+    let wallet_data = get_issuer_setup_outputs(String::from("wallet"));
+    let sub_proof_request = issuer_data.5;
+    let w_sub_proof_request = wallet_data.5;
 
     let issuer_sig_json =
         fs::read_to_string("./kyc_credential_sig.json").expect("Unable to read file");
@@ -314,6 +309,7 @@ fn rocket() -> _ {
         credential_pub_key,
         credential_priv_key,
         credential_key_correctness_proof,
+        _sub_proof_request,
     ) = get_issuer_setup_outputs("issuer".into());
     let (
         w_credential_schema,
@@ -321,6 +317,7 @@ fn rocket() -> _ {
         w_credential_pub_key,
         w_credential_priv_key,
         w_credential_key_correctness_proof,
+        _w_sub_proof_request,
     ) = get_issuer_setup_outputs("wallet".into());
 
     let prover_credential_nonce = new_nonce().unwrap();
