@@ -20,7 +20,7 @@ use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{MinterData, TokenInfo, BALANCES, LOGO, MARKETING_INFO, TOKEN_INFO, VERIFIER};
 use vc_verifier::msg::QueryMsg as VcVQueryMsg;
-use vectis_verifier::types::{BigNumberBytes, WProof};
+use avida_verifier::types::{BigNumberBytes, WProof};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:cw20-base";
@@ -33,14 +33,14 @@ const LOGO_SIZE_CAP: usize = 5 * 1024;
 /// but it might be a service that users have to pay for.
 pub fn verify_vc_proof(
     deps: Deps,
-    addr: Addr,
+    wallet_addr: Addr,
     proof: WProof,
     proof_req_nonce: BigNumberBytes,
 ) -> Result<(), ContractError> {
-    let verification_msg = VcVQueryMsg::Verify {
+    let verification_msg = vc_verifier::msg::ExecuteMsg::Verify {
         proof,
         proof_req_nonce,
-        addr,
+        wallet_addr,
     };
     let result = deps
         .querier

@@ -3,7 +3,7 @@ use cw20::{Cw20Coin, Logo, MinterResponse};
 use cw_utils::Expiration;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use vectis_verifier::types::{BigNumberBytes, WProof};
+use avida_verifier::types::{BigNumberBytes, WProof};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 #[serde(rename_all = "snake_case")]

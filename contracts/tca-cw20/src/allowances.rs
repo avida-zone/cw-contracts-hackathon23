@@ -6,7 +6,7 @@ use cw20::{AllowanceResponse, Cw20ReceiveMsg, Expiration};
 
 use crate::error::ContractError;
 use crate::state::{ALLOWANCES, BALANCES, TOKEN_INFO};
-use vectis_verifier::types::{BigNumberBytes, WProof};
+use avida_verifier::types::{BigNumberBytes, WProof};
 
 pub fn execute_increase_allowance(
     deps: DepsMut,
