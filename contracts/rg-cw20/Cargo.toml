@@ -1,5 +1,5 @@
 [package]
-name = "tca-cw20-base"
+name = "rg-cw20-base"
 authors = ["bwty <whalelephant@users.noreply.github.com>"]
 edition = "2018"
 description = "Basic implementation of a CosmWasm-20 regulatory grade token"
