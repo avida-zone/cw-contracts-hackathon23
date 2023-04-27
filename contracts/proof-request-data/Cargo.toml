@@ -1,9 +1,9 @@
 [package]
-name = "vc-verifier"
+name = "avida-proof-request-data"
 version = "0.1.0"
 authors = ["belsy <belsy@nymlab.it>"]
 edition = "2018"
-description = "Verifier of verifiable credential proofs, works with proof-request-data"
+description = "Stores proof request data required for verification"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -19,6 +19,7 @@ cw20 = {workspace = true}
 cosmwasm-std = {workspace = true}
 cosmwasm-schema = {workspace = true}
 cw-storage-plus = {workspace = true}
+cw-controllers = {workspace = true}
 schemars = {workspace = true}
 semver = {workspace = true}
 serde = {workspace = true}
@@ -31,3 +32,4 @@ vectis-wallet = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89
 [dev-dependencies]
 cosmwasm-schema = { version = "1.0.0" }
 serde_json = "1.0"
+

@@ -3,43 +3,23 @@
   "title": "InstantiateMsg",
   "type": "object",
   "required": [
-    "req_params",
-    "wallet_cred_schema",
-    "wallet_non_cred_schema",
-    "wallet_sub_proof_request"
+    "vectis_cred_schema",
+    "vectis_non_cred_schema",
+    "vectis_sub_proof_request"
   ],
   "properties": {
-    "req_params": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/WSubProofReqParams"
-      }
-    },
-    "wallet_cred_schema": {
+    "vectis_cred_schema": {
       "$ref": "#/definitions/WCredentialSchema"
     },
-    "wallet_non_cred_schema": {
+    "vectis_non_cred_schema": {
       "$ref": "#/definitions/WNonCredentialSchema"
     },
-    "wallet_sub_proof_request": {
+    "vectis_sub_proof_request": {
       "$ref": "#/definitions/WSubProofReq"
     }
   },
   "additionalProperties": false,
   "definitions": {
-    "BigNumberBytes": {
-      "type": "string"
-    },
-    "Binary": {
-      "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.",
-      "type": "string"
-    },
-    "PointG1Bytes": {
-      "$ref": "#/definitions/Binary"
-    },
-    "PointG2Bytes": {
-      "$ref": "#/definitions/Binary"
-    },
     "WBTreeSet_for_String": {
       "type": "array",
       "items": {
@@ -52,105 +32,6 @@
         "$ref": "#/definitions/WPredicate"
       }
     },
-    "WCredentialPrimaryPubKey": {
-      "type": "object",
-      "required": [
-        "n",
-        "r",
-        "rctxt",
-        "s",
-        "z"
-      ],
-      "properties": {
-        "n": {
-          "$ref": "#/definitions/BigNumberBytes"
-        },
-        "r": {
-          "$ref": "#/definitions/WMap"
-        },
-        "rctxt": {
-          "$ref": "#/definitions/BigNumberBytes"
-        },
-        "s": {
-          "$ref": "#/definitions/BigNumberBytes"
-        },
-        "z": {
-          "$ref": "#/definitions/BigNumberBytes"
-        }
-      }
-    },
-    "WCredentialPubKey": {
-      "type": "object",
-      "required": [
-        "p_key"
-      ],
-      "properties": {
-        "p_key": {
-          "$ref": "#/definitions/WCredentialPrimaryPubKey"
-        },
-        "r_key": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/WCredentialRevocationPubKey"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "WCredentialRevocationPubKey": {
-      "type": "object",
-      "required": [
-        "g",
-        "g_dash",
-        "h",
-        "h0",
-        "h1",
-        "h2",
-        "h_cap",
-        "htilde",
-        "pk",
-        "u",
-        "y"
-      ],
-      "properties": {
-        "g": {
-          "$ref": "#/definitions/PointG1Bytes"
-        },
-        "g_dash": {
-          "$ref": "#/definitions/PointG2Bytes"
-        },
-        "h": {
-          "$ref": "#/definitions/PointG1Bytes"
-        },
-        "h0": {
-          "$ref": "#/definitions/PointG1Bytes"
-        },
-        "h1": {
-          "$ref": "#/definitions/PointG1Bytes"
-        },
-        "h2": {
-          "$ref": "#/definitions/PointG1Bytes"
-        },
-        "h_cap": {
-          "$ref": "#/definitions/PointG2Bytes"
-        },
-        "htilde": {
-          "$ref": "#/definitions/PointG1Bytes"
-        },
-        "pk": {
-          "$ref": "#/definitions/PointG1Bytes"
-        },
-        "u": {
-          "$ref": "#/definitions/PointG2Bytes"
-        },
-        "y": {
-          "$ref": "#/definitions/PointG2Bytes"
-        }
-      }
-    },
     "WCredentialSchema": {
       "type": "object",
       "required": [
@@ -160,27 +41,6 @@
         "attrs": {
           "$ref": "#/definitions/WBTreeSet_for_String"
         }
-      }
-    },
-    "WMap": {
-      "type": "array",
-      "items": {
-        "type": "array",
-        "items": [
-          {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "uint8",
-              "minimum": 0.0
-            }
-          },
-          {
-            "$ref": "#/definitions/BigNumberBytes"
-          }
-        ],
-        "maxItems": 2,
-        "minItems": 2
       }
     },
     "WNonCredentialSchema": {
@@ -224,28 +84,6 @@
         "LT"
       ]
     },
-    "WRevocationKeyPublic": {
-      "type": "object",
-      "required": [
-        "pair"
-      ],
-      "properties": {
-        "pair": {
-          "type": "string"
-        }
-      }
-    },
-    "WRevocationRegistry": {
-      "type": "object",
-      "required": [
-        "accum"
-      ],
-      "properties": {
-        "accum": {
-          "$ref": "#/definitions/Binary"
-        }
-      }
-    },
     "WSubProofReq": {
       "description": "SubProofRequest type from Libursa",
       "type": "object",
@@ -259,49 +97,6 @@
         },
         "revealed_attrs": {
           "$ref": "#/definitions/WBTreeSet_for_String"
-        }
-      }
-    },
-    "WSubProofReqParams": {
-      "type": "object",
-      "required": [
-        "credential_pub_key",
-        "credential_schema",
-        "non_credential_schema",
-        "sub_proof_request"
-      ],
-      "properties": {
-        "credential_pub_key": {
-          "$ref": "#/definitions/WCredentialPubKey"
-        },
-        "credential_schema": {
-          "$ref": "#/definitions/WCredentialSchema"
-        },
-        "non_credential_schema": {
-          "$ref": "#/definitions/WNonCredentialSchema"
-        },
-        "rev_key_pub": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/WRevocationKeyPublic"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "rev_reg": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/WRevocationRegistry"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "sub_proof_request": {
-          "$ref": "#/definitions/WSubProofReq"
         }
       }
     }

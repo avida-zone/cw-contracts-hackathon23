@@ -4,7 +4,6 @@ version = "0.1.0"
 authors = ["belsy <belsy@nymlab.it>"]
 edition = "2018"
 description = "A Queriable plugin for the Vectis Account for Anoncreds material"
-license = "Apache-2.0"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

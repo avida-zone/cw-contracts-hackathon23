@@ -148,6 +148,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "avida-proof-request-data"
+version = "0.1.0"
+dependencies = [
+ "avida-verifier",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-controllers",
+ "cw-storage-plus",
+ "cw-utils",
+ "cw2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cw20 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "schemars",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "ursa",
+ "vectis-wallet 0.1.0 (git+https://github.com/nymlab/vectis?rev=806d189bf4f89)",
+]
+
+[[package]]
 name = "avida-verifier"
 version = "0.1.0"
 dependencies = [
@@ -2630,7 +2651,6 @@ dependencies = [
  "avida-verifier",
  "cosmwasm-schema",
  "cosmwasm-std",
- "cw-controllers",
  "cw-storage-plus",
  "cw-utils",
  "cw2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -1,5 +1,5 @@
 use avida_verifier::{
-    plugin_state::{SELF_ISSUED_CRED_DEF, VECTIS_ACCOUNT},
+    state::plugin::{SELF_ISSUED_CRED_DEF, VECTIS_ACCOUNT},
     types::WCredentialPubKey,
 };
 use cosmwasm_schema::{cw_serde, QueryResponses};
@@ -21,6 +21,8 @@ pub enum ContractError {
     IdentityPluginInstFailed,
     #[error("StdError {0}")]
     Std(#[from] StdError),
+    #[error("Not implemented")]
+    NotImplemented,
 }
 
 #[cw_serde]
@@ -58,7 +60,7 @@ pub fn execute(
     _info: MessageInfo,
     _msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
-    Ok(Response::new())
+    Err(ContractError::NotImplemented)
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
