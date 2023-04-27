@@ -3,7 +3,7 @@
   "title": "ExecuteMsg",
   "oneOf": [
     {
-      "description": "Called by prover where proof has already been generated offchain This does not change state but will emit an event",
+      "description": "Called by prover where proof has already been generated offchain",
       "type": "object",
       "required": [
         "verify"
@@ -25,27 +25,6 @@
             },
             "wallet_addr": {
               "$ref": "#/definitions/Addr"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    {
-      "type": "object",
-      "required": [
-        "update_admin"
-      ],
-      "properties": {
-        "update_admin": {
-          "type": "object",
-          "properties": {
-            "new_admin": {
-              "type": [
-                "string",
-                "null"
-              ]
             }
           },
           "additionalProperties": false

@@ -1,10 +1,7 @@
 use cw_multi_test::{App, AppResponse, Contract, ContractWrapper, Executor};
-use vc_verifier::{
-    contract::{
-        execute as vc_verifier_execute, instantiate as vc_verifier_instantiate,
-        query as vc_verifier_query,
-    },
-    msg::InstantiateMsg as VcVerifierInstMsg,
+use vc_verifier::contract::{
+    execute as vc_verifier_execute, instantiate as vc_verifier_instantiate,
+    query as vc_verifier_query,
 };
 
 use anoncreds_identity_plugin::contract::{
@@ -12,8 +9,10 @@ use anoncreds_identity_plugin::contract::{
     InstantiateMsg as PluginInstMsg,
 };
 use avida_verifier::helper::{get_issuer_setup_outputs, get_proof};
+use avida_verifier::msg::vc_verifier::{
+    ExecuteMsg as VcVerifierExecMsg, InstantiateMsg as VcVerifierInstMsg,
+};
 use avida_verifier::types::{WSubProofReq, WSubProofReqParams, PLUGIN_QUERY_KEY};
-use avida_verifier::vc_verifier_msg::ExecuteMsg as VcVerifierExecMsg;
 use cosmwasm_std::{coin, to_binary, Addr, CosmosMsg, Empty, WasmMsg};
 use serde;
 use serde_json;
