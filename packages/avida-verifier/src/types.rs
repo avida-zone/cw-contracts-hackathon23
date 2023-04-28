@@ -40,7 +40,7 @@ impl From<UrsaCryptoError> for TypeConversionError {
 pub type ConversionResult<T> = Result<T, TypeConversionError>;
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone, PartialEq)]
-pub struct BigNumberBytes(String);
+pub struct BigNumberBytes(pub String);
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone, PartialEq)]
 pub struct PointG1Bytes(Binary);

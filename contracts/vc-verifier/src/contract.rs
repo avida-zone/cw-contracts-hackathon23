@@ -20,7 +20,8 @@ use vectis_wallet::{CONTROLLER, QUERY_PLUGINS};
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, Storage,
+    to_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
+    Storage,
 };
 use cw2::set_contract_version;
 use std::convert::TryInto;
@@ -117,7 +118,9 @@ pub fn execute_proof_verify(
         sub_proof_requests,
     )?;
 
-    Ok(Response::default().add_attribute("verified", verified.to_string()))
+    Ok(Response::default()
+        .set_data(to_binary(&verified)?) // set this for caller
+        .add_attribute("verified", verified.to_string()))
 }
 
 fn proof_verify(

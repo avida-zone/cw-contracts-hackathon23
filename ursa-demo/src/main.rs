@@ -238,7 +238,8 @@ fn main() {
     )
     .unwrap();
 
-    let proof_request_nonce = new_nonce().unwrap();
+    // let proof_request_nonce = new_nonce().unwrap();
+    let proof_request_nonce = BigNumber::from_dec("2").unwrap();
     let proof = proof_builder.finalize(&proof_request_nonce).unwrap();
 
     // Verifier verifies

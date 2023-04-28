@@ -1,4 +1,5 @@
 use cosmwasm_std::StdError;
+use cw_utils::ParseReplyError;
 use thiserror::Error;
 use vc_verifier::error::ContractError as VCVerifierError;
 
@@ -6,6 +7,9 @@ use vc_verifier::error::ContractError as VCVerifierError;
 pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
+
+    #[error("{0}")]
+    ParseReplyError(#[from] ParseReplyError),
 
     #[error("Unauthorized")]
     Unauthorized {},
@@ -42,4 +46,16 @@ pub enum ContractError {
 
     #[error("Proof Invalid")]
     ProofInvalid {},
+
+    #[error("Invalid Reply Id")]
+    InvalidReplyId,
+
+    #[error("TryInto fail for SubProofReqParams")]
+    SubProofReqParams,
+
+    #[error("VerificationProcessError")]
+    VerificationProcessError,
+
+    #[error("Overflow")]
+    Overflow,
 }
