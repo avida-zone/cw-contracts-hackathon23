@@ -140,6 +140,7 @@ dependencies = [
  "avida-verifier",
  "cosmwasm-std",
  "cw-multi-test",
+ "rg-cw20-base",
  "serde",
  "serde_json",
  "vc-verifier",

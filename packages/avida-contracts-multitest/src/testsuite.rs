@@ -1,18 +1,24 @@
 use cw_multi_test::{App, AppResponse, Contract, ContractWrapper, Executor};
+
 use vc_verifier::contract::{
     execute as vc_verifier_execute, instantiate as vc_verifier_instantiate,
     query as vc_verifier_query,
+};
+
+use rg_cw20::contract::{
+    execute as rg_execute, instantiate as rg_instantiate, query as rg_query, reply as rg_reply,
 };
 
 use anoncreds_identity_plugin::contract::{
     execute as plugin_execute, instantiate as plugin_instantiate, query as plugin_query,
     InstantiateMsg as PluginInstMsg,
 };
-use avida_verifier::helper::{get_issuer_setup_outputs, get_proof};
-use avida_verifier::msg::vc_verifier::{
-    ExecuteMsg as VcVerifierExecMsg, InstantiateMsg as VcVerifierInstMsg,
+use avida_verifier::{
+    helper::{get_issuer_setup_outputs, get_proof},
+    msg::vc_verifier::{ExecuteMsg as VcVerifierExecMsg, InstantiateMsg as VcVerifierInstMsg},
+    types::{WSubProofReq, WSubProofReqParams, PLUGIN_QUERY_KEY},
 };
-use avida_verifier::types::{WSubProofReq, WSubProofReqParams, PLUGIN_QUERY_KEY};
+
 use cosmwasm_std::{coin, to_binary, Addr, CosmosMsg, Empty, WasmMsg};
 use serde;
 use serde_json;
@@ -24,6 +30,11 @@ use vectis_contract_tests::common::plugins_common::PluginsSuite;
 use vectis_wallet::{PluginParams, PluginPermissions, PluginSource, ProxyExecuteMsg};
 
 const ISSUER: &str = "Issuer";
+
+pub fn contract_rg() -> Box<dyn Contract<Empty>> {
+    let contract = ContractWrapper::new(rg_execute, rg_instantiate, rg_query).with_reply(rg_reply);
+    Box::new(contract)
+}
 
 pub fn contract_vc_verifier() -> Box<dyn Contract<Empty>> {
     let contract = ContractWrapper::new(
