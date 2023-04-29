@@ -1,0 +1,23 @@
+{
+  "revealed_attrs": [
+    "citizenship",
+    "dateOfBirth",
+    "firstName",
+    "genderType",
+    "idDocExpiringDate",
+    "idDocIssueDate",
+    "idDocIssuer",
+    "idDocNumber",
+    "idDocType",
+    "idDocumentImage",
+    "lastName",
+    "personImage",
+    "pobAddress",
+    "pobCity",
+    "pobCountry",
+    "pobState",
+    "pobZipCode",
+    "serialNumber"
+  ],
+  "predicates": []
+}

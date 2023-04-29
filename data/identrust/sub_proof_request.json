@@ -1,0 +1,11 @@
+{
+  "revealed_attrs": [
+    "AMLquestionnaireDocHash",
+    "AMLquestionnaireTemplateURI",
+    "AMLquestionnaireURI",
+    "AMLquestionnaireVersion",
+    "AMLriskProfile",
+    "AMLverificationPassed"
+  ],
+  "predicates": []
+}

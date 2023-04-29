@@ -7,10 +7,7 @@ pub struct Issuer {
     pub name: String,
     pub correnctness: String,
     pub privkey: String,
-    pub pubkey: String,
-    pub schema: String,
-    pub nonschema: String,
-    pub subproofreq: String,
+    pub subproofreqparams: String,
 }
 
 #[derive(Insertable)]
@@ -19,10 +16,7 @@ pub struct NewIssuer {
     pub name: String,
     pub correctness: String,
     pub privkey: String,
-    pub pubkey: String,
-    pub schema: String,
-    pub nonschema: String,
-    pub subproofreq: String,
+    pub subproofreqparams: String,
 }
 
 #[derive(Queryable, Debug)]

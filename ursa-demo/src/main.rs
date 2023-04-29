@@ -1,3 +1,4 @@
+use std::fs;
 use ursa::bn::BigNumber;
 use ursa::cl::issuer::Issuer;
 use ursa::cl::new_nonce;
@@ -13,13 +14,17 @@ fn main() {
 
     // Issuers set up schema and credential def
     // - Issuer qualified for DApp
-    // - Vectis wallet also stores a credential definition
-    let (
-        credential_schema,
-        non_credential_schema,
-        credential_pub_key,
-        credential_priv_key,
-        credential_key_correctness_proof,
-    ) = issuer_set_up("infocert");
-    create_sub_proof_request("infocert")
+    let issuers_str = fs::read_to_string("./setup_data/issuers.json").unwrap();
+    let issuers: Vec<String> = serde_json::from_str(&issuers_str).unwrap();
+
+    for issuer in issuers {
+        let (
+            credential_schema,
+            non_credential_schema,
+            credential_pub_key,
+            credential_priv_key,
+            credential_key_correctness_proof,
+        ) = issuer_set_up(&issuer);
+        create_sub_proof_request(&issuer)
+    }
 }

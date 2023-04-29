@@ -17,10 +17,7 @@ diesel::table! {
         name -> Varchar,
         correctness -> Text,
         privkey -> Text,
-        pubkey -> Text,
-        schema -> Text,
-        nonschema -> Text,
-        subproofreq -> Text,
+        subproofreqparams -> Text,
     }
 }
 

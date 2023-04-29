@@ -74,26 +74,6 @@ pub fn get_issuer_setup_outputs(
     (schema, non_schema, pk, priv_key, correctness, sub_proof_req)
 }
 
-pub fn get_issuer_setup_outputs_str(
-    dir: String,
-) -> (String, String, String, String, String, String) {
-    let data_dir = data_dir(&dir);
-    let path = data_dir.to_str().unwrap();
-    let schema = fs::read_to_string(format!("{}{}", path, CRED_SCHEMA_PATH)).unwrap();
-
-    let non_schema = fs::read_to_string(format!("{}{}", path, NON_CRED_SCHEMA_PATH)).unwrap();
-
-    let pk = fs::read_to_string(format!("{}{}", path, CRED_PUB_KEY)).unwrap();
-
-    let privkey = fs::read_to_string(format!("{}{}", path, CRED_PRI_KEY)).unwrap();
-
-    let correctness = fs::read_to_string(format!("{}{}", path, CRED_CORRECTNESS_PATH)).unwrap();
-
-    let sub_proof_req = fs::read_to_string(format!("{}{}", path, SUB_PROOF_REQ_PATH)).unwrap();
-
-    (schema, non_schema, pk, privkey, correctness, sub_proof_req)
-}
-
 pub fn issuer_set_up(
     issuer: &str,
 ) -> (

@@ -13,8 +13,8 @@ use rocket::{Request, Response};
 
 use ursa::cl::{CredentialPublicKey, SubProofRequest};
 use ursa_service::{
-    create_issuers, establish_connection, get_issuer, models::Issuer, rg_holder_issuer_set_up,
-    schema::issuers::dsl::*,
+    create_issuers_from_files, establish_connection, get_issuer, models::Issuer,
+    rg_holder_issuer_set_up, schema::issuers::dsl::*,
 };
 
 pub struct CORS;
@@ -40,7 +40,7 @@ impl Fairing for CORS {
 
 // Returns sub-proof-req-params from issuers
 #[get("/sub-proof-req-params?<issuer>")]
-fn get_subproofreq(issuer: Vec<&str>) -> Json<BTreeMap<&str, Option<String>>> {
+fn get_subproofreqparams(issuer: Vec<&str>) -> Json<BTreeMap<&str, Option<String>>> {
     let mut connection = establish_connection();
     let mut v = BTreeMap::new();
     for i in issuer {
@@ -52,11 +52,12 @@ fn get_subproofreq(issuer: Vec<&str>) -> Json<BTreeMap<&str, Option<String>>> {
 
 // Returns self issuer credential pubkey
 #[post("/rg-holder-setup/<controller_addr>")]
-fn rg_holder_setup(controller_addr: String) -> Json<CredentialPublicKey> {
+fn rg_holder_setup(controller_addr: String) -> Json<String> {
     let mut connection = establish_connection();
     // self issue credential and store in issuers
-    let cred_pubkey = rg_holder_issuer_set_up(&mut connection, controller_addr);
-    Json(cred_pubkey)
+    rg_holder_issuer_set_up(&mut connection, controller_addr.clone());
+    let r = get_issuer(&mut connection, &controller_addr).unwrap();
+    Json(r)
 
     // get_issuers, for each, issuer credential and store it
     // return self issue pubkey
@@ -65,8 +66,12 @@ fn rg_holder_setup(controller_addr: String) -> Json<CredentialPublicKey> {
 #[launch]
 fn rocket() -> _ {
     let mut connection = establish_connection();
+    let setup_issuers = ["gayadeed", "infocert", "identrust"];
+    for i in setup_issuers {
+        create_issuers_from_files(&mut connection, i);
+    }
 
     rocket::build()
-        .mount("/", routes![get_subproofreq, rg_holder_setup])
+        .mount("/", routes![get_subproofreqparams, rg_holder_setup])
         .attach(CORS)
 }
