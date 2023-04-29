@@ -1,6 +1,0 @@
-FROM rust:1.67.1-slim-bookworm
-COPY . /app
-RUN cargo install diesel_cli --no-default-features --features postgres
-ENV DATABASE_URL=postgresql://avida:avidapass123@localhost:5243/postgres
-RUN diesel migration run 
-RUN cargo build --release
