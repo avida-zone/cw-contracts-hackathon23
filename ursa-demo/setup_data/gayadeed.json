@@ -1,0 +1,22 @@
+{
+  "attrs": [
+    "firstName",
+    "lastName",
+    "genderType",
+    "personImage",
+    "dateOfBirth",
+    "serialNumber",
+    "citizenship",
+    "pobCountry",
+    "pobCity",
+    "pobState",
+    "pobAddress",
+    "pobZipCode",
+    "idDocType",
+    "idDocNumber",
+    "idDocIssuer",
+    "idDocIssueDate",
+    "idDocExpiringDate",
+    "idDocumentImage"
+  ]
+}

@@ -4,9 +4,11 @@ use std::{
 };
 
 use log::info;
+use serde::{Deserialize, Serialize};
 use serde_json;
 use ursa::cl::issuer::Issuer;
 use ursa::cl::prover::Prover;
+use ursa::cl::verifier::Verifier;
 use ursa::cl::{
     BlindedCredentialSecrets, BlindedCredentialSecretsCorrectnessProof,
     CredentialKeyCorrectnessProof, CredentialPrivateKey, CredentialPublicKey, CredentialSchema,
@@ -93,9 +95,7 @@ pub fn get_issuer_setup_outputs_str(
 }
 
 pub fn issuer_set_up(
-    schema_attrs: Vec<&str>,
-    non_schema_attrs: Vec<&str>,
-    dir: String,
+    issuer: &str,
 ) -> (
     CredentialSchema,
     NonCredentialSchema,
@@ -103,14 +103,10 @@ pub fn issuer_set_up(
     CredentialPrivateKey,
     CredentialKeyCorrectnessProof,
 ) {
-    // Credential schema and Non credential schema
-    let mut credential_schema_builder = Issuer::new_credential_schema_builder().unwrap();
-    for a in schema_attrs {
-        credential_schema_builder.add_attr(&a).unwrap();
-    }
-    let credential_schema = credential_schema_builder.finalize().unwrap();
-    info!("credential schema {:?}", credential_schema);
+    let schema_json = fs::read_to_string(format!("./setup_data/{}.json", issuer)).unwrap();
+    let credential_schema: CredentialSchema = serde_json::from_str(&schema_json).unwrap();
 
+    let non_schema_attrs: Vec<&'static str> = vec!["link_secret"];
     let mut non_credential_schema_builder = Issuer::new_non_credential_schema_builder().unwrap();
     for n in non_schema_attrs {
         non_credential_schema_builder.add_attr(&n).unwrap();
@@ -118,7 +114,7 @@ pub fn issuer_set_up(
     let non_credential_schema = non_credential_schema_builder.finalize().unwrap();
     info!("non credential schema {:?}", non_credential_schema);
 
-    let data_dir = data_dir(&dir);
+    let data_dir = data_dir(issuer);
     let path = data_dir.to_str().unwrap();
 
     // Credential definition
@@ -162,6 +158,31 @@ pub fn issuer_set_up(
         credential_priv_key,
         cred_key_correctness_proof,
     )
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Attrs {
+    pub attrs: Vec<String>,
+}
+
+// This assumes all attributes are used and revealed with no predicate
+pub fn create_sub_proof_request(issuer: &str) {
+    let schema_json = fs::read_to_string(format!("./setup_data/{}.json", issuer)).unwrap();
+    let schema: Attrs = serde_json::from_str(&schema_json).unwrap();
+
+    let mut sub_proof_request_builder = Verifier::new_sub_proof_request_builder().unwrap();
+    for attr in schema.attrs.clone() {
+        sub_proof_request_builder.add_revealed_attr(&attr).unwrap();
+    }
+    let sub_proof_request = sub_proof_request_builder.finalize().unwrap();
+
+    let issuer_dir = data_dir(issuer);
+    let issuer_path = issuer_dir.to_str().unwrap();
+    std::fs::write(
+        format!("{}{}", issuer_path, "/sub_proof_request.json"),
+        serde_json::to_string_pretty(&sub_proof_request).unwrap(),
+    )
+    .unwrap();
 }
 
 // this mimics the credential request that indy-sdk builds

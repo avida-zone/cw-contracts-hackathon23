@@ -1,0 +1,10 @@
+{
+  "attrs": [
+    "AMLquestionnaireDocHash",
+    "AMLquestionnaireURI",
+    "AMLquestionnaireTemplateURI",
+    "AMLquestionnaireVersion",
+    "AMLriskProfile",
+    "AMLverificationPassed"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "revealed_attrs": [
+    "additionalOrgId",
+    "additionalOrgIdType",
+    "orgAddress",
+    "orgCity",
+    "orgCountry",
+    "orgName",
+    "orgType",
+    "orgZipCode",
+    "organisationIdentifier"
+  ],
+  "predicates": []
+}
