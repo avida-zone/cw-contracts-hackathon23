@@ -748,6 +748,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "diesel_migrations"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9ae22beef5e9d6fab9225ddb073c1c6c1a7a6ded5019d5da11d1e5c5adc34e2"
+dependencies = [
+ "diesel",
+ "migrations_internals",
+ "migrations_macros",
+]
+
+[[package]]
 name = "digest"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1411,6 +1422,27 @@ name = "memchr"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d"
+
+[[package]]
+name = "migrations_internals"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c493c09323068c01e54c685f7da41a9ccf9219735c3766fbfd6099806ea08fbc"
+dependencies = [
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "migrations_macros"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a8ff27a350511de30cdabb77147501c36ef02e0451d957abea2f30caffb2b58"
+dependencies = [
+ "migrations_internals",
+ "proc-macro2",
+ "quote",
+]
 
 [[package]]
 name = "mime"
@@ -2634,6 +2666,23 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 [[package]]
 name = "ursa"
 version = "0.3.7"
+source = "git+https://github.com/whalelephant/ursa?rev=7cdccf35fb1a0#7cdccf35fb1a074a21b5eaeec003db035ff549fa"
+dependencies = [
+ "amcl",
+ "failure",
+ "lazy_static",
+ "log",
+ "num-bigint 0.3.0",
+ "num-integer",
+ "num-traits",
+ "serde",
+ "sha2 0.9.9",
+]
+
+[[package]]
+name = "ursa"
+version = "0.3.7"
+source = "git+https://github.com/whalelephant/ursa?rev=e77cc1bf90e#e77cc1bf90ebb3fb1b957fee89cf485504aeaff4"
 dependencies = [
  "amcl",
  "failure",
@@ -2650,22 +2699,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ursa"
-version = "0.3.7"
-source = "git+https://github.com/whalelephant/ursa?rev=7cdccf35fb1a0#7cdccf35fb1a074a21b5eaeec003db035ff549fa"
-dependencies = [
- "amcl",
- "failure",
- "lazy_static",
- "log",
- "num-bigint 0.3.0",
- "num-integer",
- "num-traits",
- "serde",
- "sha2 0.9.9",
-]
-
-[[package]]
 name = "ursa-demo"
 version = "0.1.0"
 dependencies = [
@@ -2673,7 +2706,7 @@ dependencies = [
  "log",
  "serde",
  "serde_json",
- "ursa 0.3.7",
+ "ursa 0.3.7 (git+https://github.com/whalelephant/ursa?rev=e77cc1bf90e)",
 ]
 
 [[package]]
@@ -2681,13 +2714,14 @@ name = "ursa-service"
 version = "0.1.0"
 dependencies = [
  "diesel",
+ "diesel_migrations",
  "dotenvy",
  "env_logger",
  "log",
  "rocket",
  "serde",
  "serde_json",
- "ursa 0.3.7",
+ "ursa 0.3.7 (git+https://github.com/whalelephant/ursa?rev=e77cc1bf90e)",
  "ursa-demo",
 ]
 

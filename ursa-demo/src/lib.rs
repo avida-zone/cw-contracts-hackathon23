@@ -26,7 +26,11 @@ pub fn data_dir(dir: &str) -> PathBuf {
         .unwrap()
         .stdout;
     let cargo_path = Path::new(std::str::from_utf8(&output).unwrap().trim());
-    let data_path = cargo_path.parent().unwrap().join("data/").join(dir);
+    let data_path = cargo_path
+        .parent()
+        .unwrap()
+        .join("ursa-service/data/")
+        .join(dir);
     std::fs::create_dir_all(data_path.clone()).unwrap();
     data_path
 }
@@ -203,8 +207,8 @@ pub fn issuer_adds_cred_values_and_signs(
     blinded_credential_secrets_correctness_proof: BlindedCredentialSecretsCorrectnessProof,
     prover_credential_nonce: Nonce,
     issuer_issuance_nonce: Nonce,
-    cred_schema_attrs: Vec<&str>,
-    cred_values: Vec<&str>,
+    cred_schema_attrs: Vec<String>,
+    cred_values: Vec<String>,
     credential_pub_key: CredentialPublicKey,
     credential_priv_key: &CredentialPrivateKey,
 ) -> (CredentialSignature, SignatureCorrectnessProof) {
@@ -212,7 +216,7 @@ pub fn issuer_adds_cred_values_and_signs(
     let mut credential_values_builder = Issuer::new_credential_values_builder().unwrap();
     for (idx, attr) in cred_schema_attrs.iter().enumerate() {
         credential_values_builder
-            .add_dec_known(attr, cred_values[idx])
+            .add_dec_known(attr, &cred_values[idx])
             .unwrap();
     }
     let credential_values = credential_values_builder.finalize().unwrap();

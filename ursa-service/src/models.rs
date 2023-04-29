@@ -5,7 +5,7 @@ use diesel::prelude::*;
 pub struct Issuer {
     pub id: i32,
     pub name: String,
-    pub correnctness: String,
+    pub correctness: String,
     pub privkey: String,
     pub subproofreqparams: String,
 }

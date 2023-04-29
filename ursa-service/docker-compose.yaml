@@ -8,6 +8,15 @@ services:
       - POSTGRES_DB=postgres
     ports:
       - "5243:5432"
+    volumes:
+      - creds:/var/lib/postgresql/data
+
+        # ursa-service:
+        #   image: avida
+        #   environment:
+        #     - DATABASE_URL=postgresql://avida:avidapass123@localhost:5243/postgres
+        #   ports:
+        #     - "8000:8000"
 
 volumes:
   creds:

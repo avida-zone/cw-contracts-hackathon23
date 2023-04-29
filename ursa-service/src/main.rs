@@ -2,22 +2,22 @@
 extern crate rocket;
 
 use std::collections::BTreeMap;
-use std::fs;
 
-use log::info;
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
-use rocket::serde::{json::Json, Serialize};
-use rocket::State;
+use rocket::serde::json::Json;
+
 use rocket::{Request, Response};
 
-use ursa::cl::{CredentialPublicKey, SubProofRequest};
 use ursa_service::{
-    create_issuers_from_files, establish_connection, get_issuer, models::Issuer,
-    rg_holder_issuer_set_up, schema::issuers::dsl::*,
+    create_credentials, create_issuers_from_files, establish_connection, get_creds_dev, get_issuer,
+    rg_holder_issuer_set_up,
 };
 
 pub struct CORS;
+// pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("../../migrations/postgresql");
 
 #[rocket::async_trait]
 impl Fairing for CORS {
@@ -50,17 +50,32 @@ fn get_subproofreqparams(issuer: Vec<&str>) -> Json<BTreeMap<&str, Option<String
     Json(v)
 }
 
+// DEV ONLY
+// Returns sub-proof-req-params from issuers
+#[get("/creds/<controller_addr>")]
+fn get_creds(controller_addr: String) -> Json<Vec<String>> {
+    let mut connection = establish_connection();
+    let r = get_creds_dev(&mut connection, &controller_addr);
+    Json(r)
+}
+
 // Returns self issuer credential pubkey
-#[post("/rg-holder-setup/<controller_addr>")]
-fn rg_holder_setup(controller_addr: String) -> Json<String> {
+#[post("/rg-holder-setup/<controller_addr>/<wallet_addr>")]
+fn rg_holder_setup(controller_addr: String, wallet_addr: String) -> Json<String> {
     let mut connection = establish_connection();
     // self issue credential and store in issuers
     rg_holder_issuer_set_up(&mut connection, controller_addr.clone());
+
+    let issuers_list = &["gayadeed", "infocert", "identrust"];
+    create_credentials(
+        &mut connection,
+        &controller_addr,
+        &wallet_addr,
+        issuers_list,
+    );
+
     let r = get_issuer(&mut connection, &controller_addr).unwrap();
     Json(r)
-
-    // get_issuers, for each, issuer credential and store it
-    // return self issue pubkey
 }
 
 #[launch]
@@ -72,6 +87,9 @@ fn rocket() -> _ {
     }
 
     rocket::build()
-        .mount("/", routes![get_subproofreqparams, rg_holder_setup])
+        .mount(
+            "/",
+            routes![get_subproofreqparams, rg_holder_setup, get_creds],
+        )
         .attach(CORS)
 }
