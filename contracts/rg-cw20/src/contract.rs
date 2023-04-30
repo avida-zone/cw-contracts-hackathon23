@@ -5,13 +5,16 @@ pub(crate) use cosmwasm_std::{
     StdResult, Uint128,
 };
 
-use avida_verifier::types::SubProofReqParams;
+pub(crate) use avida_verifier::{
+    msg::launchpad::ExecuteMsg as LaunchpadExecMsg, msg::rg_cw20::RgMinterData,
+    state::launchpad::RG_TRANSFORM, types::SubProofReqParams,
+};
 use cw_utils::parse_reply_execute_data;
 
 use cw2::set_contract_version;
 pub(crate) use cw20::{
-    AllAccountsResponse, BalanceResponse, Cw20Coin, Cw20ReceiveMsg, DownloadLogoResponse,
-    EmbeddedLogo, Logo, LogoInfo, MarketingInfoResponse, TokenInfoResponse,
+    BalanceResponse, Cw20Coin, Cw20ReceiveMsg, DownloadLogoResponse, EmbeddedLogo, Logo, LogoInfo,
+    MarketingInfoResponse, TokenInfoResponse,
 };
 
 use crate::state::PENDING_VERIFICATION;
@@ -23,8 +26,8 @@ pub(crate) use crate::{
     msg::{ExecuteMsg, InstantiateMsg, QueryMsg},
     query::*,
     state::{
-        RgMinterData, TokenInfo, BALANCES, LAUNCHPAD, LOGO, MARKETING_INFO, SUB_PROOF_REQ_PARAMS,
-        TOKEN_INFO, VC_NONCE,
+        TokenInfo, BALANCES, LAUNCHPAD, LOGO, MARKETING_INFO, SUB_PROOF_REQ_PARAMS, TOKEN_INFO,
+        VC_NONCE,
     },
     util::*,
     verify_vc_proof::verify_vc_proof,
@@ -167,8 +170,10 @@ pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, Contract
                         msg,
                         ..
                     } => execute_send(deps, env, info, contract, amount, msg),
-                    ExecuteMsg::Mint { amount, .. } => execute_mint(deps, env, info, amount),
                     // We handled these cases already because they do not need proofs
+                    ExecuteMsg::Mint {
+                        amount, recipient, ..
+                    } => execute_mint(deps, info, amount, recipient),
                     _ => unreachable!(),
                 }
             } else {

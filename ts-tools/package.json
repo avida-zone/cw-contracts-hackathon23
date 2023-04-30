@@ -1,0 +1,9 @@
+{
+  "name": "avida-ts-tools",
+  "version": "1.0.0",
+  "description": "TS tools to deploy and test contracts",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  }
+}

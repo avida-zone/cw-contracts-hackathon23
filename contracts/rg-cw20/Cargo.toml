@@ -1,18 +1,15 @@
 [package]
-name = "rg-cw20-base"
+name = "rg-cw20"
 authors = ["bwty <whalelephant@users.noreply.github.com>"]
 edition = "2018"
 description = "Basic implementation of a CosmWasm-20 regulatory grade token"
-license = "Apache-2.0"
 version = "0.1.0"
-
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [features]
 backtraces = ["cosmwasm-std/backtraces"]
-# use library feature to disable all instantiate/execute/query exports
 library = []
 
 [dependencies]
@@ -22,11 +19,8 @@ cw20 = {workspace = true}
 cw-storage-plus = {workspace = true}
 cosmwasm-std = {workspace = true}
 cosmwasm-schema = {workspace = true}
-schemars = "0.8.1"
-serde = { version = "1.0.103", default-features = false, features = ["derive"] }
-thiserror = { version = "1.0.23" }
+schemars = {workspace = true}
+serde = {workspace = true}
+thiserror = {workspace = true}
 avida-verifier = { path = "../../packages/avida-verifier" }
 vc-verifier = { path = "../vc-verifier", features = ["library"] }
-
-[dev-dependencies]
-cosmwasm-schema = { version = "1.0.0" }

@@ -1,3 +1,4 @@
+use crate::contract::*;
 use crate::msg::ExecuteMsg;
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, MessageInfo, Uint128};
@@ -11,15 +12,6 @@ pub struct TokenInfo {
     pub decimals: u8,
     pub total_supply: Uint128,
     pub mint: Option<RgMinterData>,
-}
-
-#[cw_serde]
-pub struct RgMinterData {
-    /// Anyone can mint (as long as they have the correct proof)
-    pub public: bool,
-    pub minter: Option<Addr>,
-    /// cap is how many more tokens can be issued by the minter
-    pub cap: Option<Uint128>,
 }
 
 impl TokenInfo {

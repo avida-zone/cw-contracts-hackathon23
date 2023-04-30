@@ -1,86 +1,27 @@
-use avida_verifier::{
-    state::plugin::{SELF_ISSUED_CRED_DEF, VECTIS_ACCOUNT},
-    types::WCredentialPubKey,
+pub(crate) use crate::{
+    error::ContractError,
+    exec::{exec_mint, exec_revert, exec_transform, instantiate_rg_cw20},
+    msg::{ContractResponse, ContractType, ExecuteMsg, InstantiateMsg, LaunchType, QueryMsg},
+    state::{
+        LaunchpadOptions, DEPLOYER, PENDING_INST, RG_CONTRACTS, RG_CW_20_CODE_ID, RG_TRANSFORM,
+    },
 };
-use cosmwasm_schema::{cw_serde, QueryResponses};
+
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{
-    to_binary, Binary, Event, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
+pub(crate) use cosmwasm_std::{
+    to_binary, Binary, Deps, DepsMut, Env, Event, MessageInfo, Order, Reply, Response, StdResult,
+    SubMsg, Uint128, WasmMsg,
 };
 use cw2::set_contract_version;
-use thiserror::Error;
+use cw_storage_plus::Bound;
+use cw_utils::parse_reply_instantiate_data;
 
 // version info for migration info
-const CONTRACT_NAME: &str = "crates.io:launchpad";
+const CONTRACT_NAME: &str = env!("CARGO_PKG_NAME");
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-
-#[derive(Error, Debug, PartialEq)]
-pub enum ContractError {
-    #[error("Identity Plugin Inst Failed")]
-    IdentityPluginInstFailed,
-    #[error("StdError {0}")]
-    Std(#[from] StdError),
-    #[error("Not implemented")]
-    NotImplemented,
-}
-
-#[cw_serde]
-pub struct InstantiateMsg {
-    pub rg_cw20_code_id: u64,
-}
-
-#[cw_serde]
-pub struct ExecuteMsg {}
-
-#[cw_serde]
-#[derive(QueryResponses)]
-pub enum QueryMsg {
-    #[returns(WCredentialPubKey)]
-    CredentialPubKey,
-}
-
-pub fn factory_instantiate(
-    deps: DepsMut,
-    env: Env,
-    info: MessageInfo,
-    msg: InstantiateMsg,
-) -> Result<Response, ContractError> {
-    let admin_addr = deps.api.addr_canonicalize(info.sender.as_ref())?;
-
-    DEPLOYER.save(deps.storage, &admin_addr)?;
-    RG_CW_20_CODE_ID.save(deps.storage, &msg.rg_cw20_code_id)?;
-
-    let event = Event::new("vectis.factory.v1.MsgInstantiate")
-        .add_attribute("contract_address", env.contract.address);
-
-    Ok(Response::new().add_event(event))
-}
-
-pub fn instantiate_rg_cw20(
-    deps: DepsMut,
-    info: MessageInfo,
-    env: Env) -> Result<Response, ContractError> {
-    // The wasm message containing the `wallet_proxy` instantiation message
-    let instantiate_msg = WasmMsg::Instantiate {
-        admin: Some(env.contract.address.to_string()),
-        code_id: PROXY_CODE_ID.load(deps.storage)?,
-        msg: to_binary(&ProxyInstantiateMsg {
-            multisig_code_id: PROXY_MULTISIG_CODE_ID.load(deps.storage)?,
-            create_wallet_msg,
-            code_id: PROXY_CODE_ID.load(deps.storage)?,
-        })?,
-        funds,
-        label: "Wallet-Proxy".into(),
-    };
-    let msg = SubMsg::reply_on_success(instantiate_msg);
-
-    let event = Event::new("vectis.factory.v1.MsgInstantiate_rg_cw20");
-
-    let res = Response::new().add_submessage(msg).add_event(event);
-
-    Ok(res)
-}
+pub const INST_REPLY_ID: u64 = u64::MIN;
+pub const TRANS_REPLY_ID: u64 = u64::MIN + 1;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -95,21 +36,112 @@ pub fn instantiate(
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
-    _deps: DepsMut,
-    _env: Env,
-    _info: MessageInfo,
-    _msg: ExecuteMsg,
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
-    Err(ContractError::NotImplemented)
+    match msg {
+        ExecuteMsg::Launch {
+            msg,
+            label,
+            launch_type,
+        } => instantiate_rg_cw20(deps, env, info, msg, label, launch_type),
+        ExecuteMsg::Transform {
+            rg_token_addr,
+            proof,
+        } => exec_transform(deps, info, rg_token_addr, proof),
+        ExecuteMsg::Revert { amount, recipient } => exec_revert(deps, info, amount, recipient),
+        ExecuteMsg::Mint {
+            rg_token_addr,
+            amount,
+            proof,
+        } => exec_mint(deps, info, rg_token_addr, amount, proof),
+    }
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, ContractError> {
+    match reply.id {
+        INST_REPLY_ID | TRANS_REPLY_ID => {
+            let map = if reply.id == INST_REPLY_ID {
+                RG_CONTRACTS
+            } else {
+                RG_TRANSFORM
+            };
+            let result = parse_reply_instantiate_data(reply)?;
+            let pending = PENDING_INST.load(deps.storage)?;
+            PENDING_INST.remove(deps.storage);
+            map.save(
+                deps.storage,
+                deps.api.addr_validate(&result.contract_address)?,
+                &pending,
+            )?;
+            let event = Event::new("Avida.Launchpad.v1.MsgTokenContractInstanitated")
+                .add_attribute("contract_address", env.contract.address);
+            Ok(Response::new().add_event(event))
+        }
+        _ => Err(ContractError::NotImplemented),
+    }
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::CredentialPubKey => to_binary(&query_cred_pub_key(deps)?),
+        QueryMsg::RegisteredContracts {
+            start_after,
+            limit,
+            contract_type,
+        } => to_binary(&query_contracts(deps, start_after, limit, contract_type)?),
     }
 }
 
-fn query_cred_pub_key(deps: Deps) -> StdResult<WCredentialPubKey> {
-    SELF_ISSUED_CRED_DEF.load(deps.storage)
+pub fn factory_instantiate(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: InstantiateMsg,
+) -> Result<Response, ContractError> {
+    let admin_addr = deps.api.addr_canonicalize(info.sender.as_ref())?;
+    DEPLOYER.save(deps.storage, &admin_addr)?;
+    RG_CW_20_CODE_ID.save(deps.storage, &msg.rg_cw20_code_id)?;
+    let event = Event::new("Avida.Launchpad.v1.MsgInstantiate")
+        .add_attribute("contract_address", env.contract.address);
+    Ok(Response::new().add_event(event))
+}
+
+pub const DEFAULT_LIMIT: u64 = 20;
+pub const MAX_LIMIT: u64 = 100;
+pub fn query_contracts(
+    deps: Deps,
+    start_after: Option<String>,
+    limit: Option<u64>,
+    contract_type: ContractType,
+) -> StdResult<Vec<ContractResponse>> {
+    let limit = limit.unwrap_or(DEFAULT_LIMIT).min(MAX_LIMIT) as usize;
+    let start = match start_after {
+        Some(s) => {
+            let rg_address = deps.api.addr_validate(&s)?;
+            Some(Bound::exclusive(rg_address))
+        }
+        None => None,
+    };
+    let map = match contract_type {
+        ContractType::New => RG_CONTRACTS,
+        ContractType::Transform => RG_TRANSFORM,
+    };
+    let contracts: StdResult<Vec<ContractResponse>> = map
+        .prefix(())
+        .range(deps.storage, start, None, Order::Ascending)
+        .take(limit)
+        .map(|w| {
+            let result = w?;
+            Ok(ContractResponse {
+                contract_address: result.0,
+                options: result.1,
+            })
+        })
+        .collect();
+
+    Ok(contracts?)
 }

@@ -1,6 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use anoncreds_identity_plugin::contract::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use avida_launchpad::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 fn main() {
     write_api! {

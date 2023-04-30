@@ -5,14 +5,12 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-cosmwasm-schema = { version = "1.1" }
-cosmwasm-std = { version = "1.0.0", features = ["stargate"] }
-schemars = "0.8.1"
-serde = { version = "1.0.103", default-features = false, features = ["derive"] }
-cw-storage-plus = "1.0.1"
-serde_json = "1.0.1"
-ursa = { git = "https://github.com/whalelephant/ursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7", rev = "7cdccf35fb1a0"}
-
-# ursa = { path = "../../../../ursa/libursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7" }
-thiserror = { version = "1.0.23" }
-
+cw20 = { workspace = true }
+cosmwasm-schema = { workspace = true }
+cosmwasm-std = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true }
+cw-storage-plus = { workspace = true }
+serde_json = { workspace = true }
+ursa = { workspace = true }
+thiserror = { workspace = true }

@@ -14,8 +14,8 @@ cosmwasm-std = "1.0.1"
 serde = { version = "1.0"}
 serde_json = { version = "1.0"}
 vc-verifier = { path = "../../contracts/vc-verifier" }
-anoncreds-identity-plugin = {path = "../../contracts/identity-plugin"}
-rg-cw20-base = {path = "../../contracts/rg-cw20"}
+avida-identity-plugin = {path = "../../contracts/identity-plugin"}
+rg-cw20 = {path = "../../contracts/rg-cw20"}
 vectis-contract-tests = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
 avida-verifier = { path = "../avida-verifier" }
 vectis-wallet = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }

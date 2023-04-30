@@ -23,18 +23,20 @@ pub fn verify_vc_proof(
         .unwrap_or_default()
         .to_string();
     let proof_req_nonce = BigNumberBytes(nonce);
-    let proof = match msg {
-        ExecuteMsg::Burn { proof, .. } => proof,
-        ExecuteMsg::Send { proof, .. } => proof,
-        ExecuteMsg::Mint { proof, .. } => proof,
-        ExecuteMsg::Transfer { proof, .. } => proof,
+    let (proof, wallet_addr) = match msg {
+        ExecuteMsg::Burn { proof, .. } => (proof, info.sender),
+        ExecuteMsg::Send { proof, .. } => (proof, info.sender),
+        ExecuteMsg::Mint {
+            proof, recipient, ..
+        } => (proof, deps.api.addr_validate(&recipient)?),
+        ExecuteMsg::Transfer { proof, .. } => (proof, info.sender),
         _ => unreachable!(),
     };
 
     let verification_msg = VcVerifierExecMsg::Verify {
         proof,
         proof_req_nonce,
-        wallet_addr: info.sender,
+        wallet_addr,
     };
     let verifier = VERIFIER.query(&deps.querier, LAUNCHPAD.load(deps.storage)?)?;
 

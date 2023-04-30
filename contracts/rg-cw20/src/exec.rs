@@ -1,3 +1,5 @@
+use cosmwasm_std::WasmMsg;
+
 use crate::contract::*;
 
 pub fn execute_transfer(
@@ -36,7 +38,7 @@ pub fn execute_transfer(
 
 pub fn execute_burn(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     amount: Uint128,
 ) -> Result<Response, ContractError> {
@@ -60,16 +62,35 @@ pub fn execute_burn(
 
     let res = Response::new()
         .add_attribute("action", "burn")
-        .add_attribute("from", info.sender)
+        .add_attribute("from", info.sender.clone())
         .add_attribute("amount", amount);
-    Ok(res)
+    // if this was a transformed, we tell the Launchpad to send back the non-rgToken
+    let launchpad = LAUNCHPAD.load(deps.storage)?;
+
+    if RG_TRANSFORM
+        .query(&deps.querier, launchpad.clone(), env.contract.address)?
+        .is_some()
+    {
+        let msg = LaunchpadExecMsg::Revert {
+            amount,
+            recipient: info.sender.to_string(),
+        };
+        Ok(res.add_message(WasmMsg::Execute {
+            contract_addr: launchpad.to_string(),
+            msg: to_binary(&msg)?,
+            funds: vec![],
+        }))
+    } else {
+        Ok(res)
+    }
 }
 
+// Exepcted to be called by launchpad only
 pub fn execute_mint(
     deps: DepsMut,
-    _env: Env,
     info: MessageInfo,
     amount: Uint128,
+    recipient: String,
 ) -> Result<Response, ContractError> {
     if amount == Uint128::zero() {
         return Err(ContractError::InvalidZeroAmount {});
@@ -80,7 +101,7 @@ pub fn execute_mint(
         return Err(ContractError::Unauthorized {});
     } else {
         let mint_config = config.mint.as_ref().unwrap();
-        if !mint_config.public && mint_config.minter != Some(info.sender.clone()) {
+        if mint_config.minter != Some(info.sender.clone()) {
             return Err(ContractError::Unauthorized {});
         }
     }
@@ -97,13 +118,13 @@ pub fn execute_mint(
     // add amount to recipient balance
     BALANCES.update(
         deps.storage,
-        &info.sender.clone(),
+        &deps.api.addr_validate(&recipient)?,
         |balance: Option<Uint128>| -> StdResult<_> { Ok(balance.unwrap_or_default() + amount) },
     )?;
 
     let res = Response::new()
         .add_attribute("action", "mint")
-        .add_attribute("to", info.sender.clone())
+        .add_attribute("to", recipient)
         .add_attribute("amount", amount);
 
     Ok(res)

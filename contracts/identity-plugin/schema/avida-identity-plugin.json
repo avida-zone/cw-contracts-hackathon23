@@ -1,5 +1,5 @@
 {
-  "contract_name": "anoncreds-identity-plugin",
+  "contract_name": "avida-identity-plugin",
   "contract_version": "0.1.0",
   "idl_version": "1.0.0",
   "instantiate": {

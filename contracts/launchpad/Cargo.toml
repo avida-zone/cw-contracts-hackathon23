@@ -1,9 +1,9 @@
 [package]
-name = "launchpad"
+name = "avida-launchpad"
 version = "0.1.0"
-authors = ["belsy <belsy@nymlab.it>"]
+authors = ["belsy <belsy@nymlab.it>", "Arsen <arsen@nymlab.it"]
 edition = "2018"
-description = "An rg-cw20 token launchpad"
+description = "Avida launchpad for regulatory grade applications"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -25,7 +25,4 @@ semver = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 avida-verifier = { path = "../../packages/avida-verifier" }
-
-[dev-dependencies]
-cosmwasm-schema = { version = "1.0.0" }
-serde_json = "1.0"
+rg-cw20 = { path = "../rg-cw20" }

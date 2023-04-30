@@ -1,7 +1,19 @@
 [workspace]
-members = ["contracts/*", "ursa-demo", "packages/*", "ursa-service"]
+members = ["contracts/*",  "packages/*" ]
 
 [profile.release.package.vc-verifier]
+codegen-units = 1
+incremental = false
+
+[profile.release.package.rg-cw20]
+codegen-units = 1
+incremental = false
+
+[profile.release.package.avida-launchpad]
+codegen-units = 1
+incremental = false
+
+[profile.release.package.avida-identity-plugin]
 codegen-units = 1
 incremental = false
 
@@ -25,7 +37,6 @@ schemars = "0.8.1"
 semver = "1"
 serde = { version = "1.0.103", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0.23" }
-avida-verifier = { path = "../../packages/avida-verifier" }
-
-
-
+ursa = { git = "https://github.com/whalelephant/ursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7", rev = "7cdccf35fb1a0"}
+vectis-wallet = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
+serde_json = { version = "1.0"}

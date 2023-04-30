@@ -3,7 +3,7 @@ name = "vc-verifier"
 version = "0.1.0"
 authors = ["belsy <belsy@nymlab.it>"]
 edition = "2018"
-description = "Verifier of verifiable credential proofs, works with proof-request-data"
+description = "Avida onchain verifier - for verifiable credential proofs"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -23,10 +23,9 @@ schemars = {workspace = true}
 semver = {workspace = true}
 serde = {workspace = true}
 thiserror = {workspace = true}
-ursa = { git = "https://github.com/whalelephant/ursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7", rev = "7cdccf35fb1a0"}
-# ursa = { path = "../../../../ursa/libursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7" }
 avida-verifier = { path = "../../packages/avida-verifier" }
-vectis-wallet = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
+ursa = {workspace = true}
+vectis-wallet = {workspace = true}
 
 [dev-dependencies]
 cosmwasm-schema = { version = "1.0.0" }
