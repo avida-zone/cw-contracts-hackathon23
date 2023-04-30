@@ -23,6 +23,9 @@ pub enum ContractError {
     #[error("UrsaCryptoError: {0}")]
     UrsaCryptoError(String),
 
+    #[error("Not AVIDA")]
+    NotAvida,
+
     #[error("BN conversion")]
     BigNumberConversionFromDec {},
 

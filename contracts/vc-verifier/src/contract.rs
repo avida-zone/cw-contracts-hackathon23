@@ -2,6 +2,7 @@ use crate::error::ContractError;
 use avida_verifier::{
     msg::vc_verifier::{ExecuteMsg, InstantiateMsg, QueryMsg},
     state::{
+        launchpad::{RG_CONTRACTS, RG_TRANSFORM},
         plugin::SELF_ISSUED_CRED_DEF,
         proof_request_data::{
             SUB_PROOF_REQ_PARAMS, VECTIS_CRED_SCHEMA, VECTIS_NON_CRED_SCHEMA, VECTIS_SUB_PROOF_REQ,
@@ -10,7 +11,7 @@ use avida_verifier::{
     types::{BigNumberBytes, SubProofReqParams, WProof, PLUGIN_QUERY_KEY},
 };
 
-use cw_storage_plus::KeyDeserialize;
+use cw_storage_plus::{Item, KeyDeserialize};
 use ursa::cl::{
     verifier::{ProofVerifier, Verifier},
     CredentialPublicKey, Proof,
@@ -30,6 +31,8 @@ use std::convert::TryInto;
 const CONTRACT_NAME: &str = env!("CARGO_PKG_NAME");
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+const LAUNCHPAD: Item<Addr> = Item::new("launchpad");
+
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
     deps: DepsMut,
@@ -39,6 +42,7 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
+    LAUNCHPAD.save(deps.storage, &msg.launchpad)?;
     // Standard minimum proof request is to proof that the user controls the controller of the
     // smart contract wallet, which is pretty trivial.
     //
@@ -59,8 +63,6 @@ pub fn execute(
     match msg {
         ExecuteMsg::Verify {
             proof,
-            // TODO move this to state
-            // Hash(contract_addr + numeric value)
             proof_req_nonce,
             wallet_addr,
         } => execute_proof_verify(deps, info, proof, proof_req_nonce, wallet_addr),
@@ -100,6 +102,12 @@ pub fn execute_proof_verify(
     s_proof_req_nonce: BigNumberBytes,
     wallet_addr: Addr,
 ) -> Result<Response, ContractError> {
+    let launchpad = LAUNCHPAD.load(deps.storage)?;
+    let rgtoken = RG_CONTRACTS.query(&deps.querier, launchpad.clone(), info.sender.clone())?;
+    let rgtransform = RG_TRANSFORM.query(&deps.querier, launchpad, info.sender.clone())?;
+    if rgtoken.is_none() && rgtransform.is_none() {
+        return Err(ContractError::NotAvida);
+    }
     let controller = CONTROLLER.query(&deps.querier, wallet_addr.clone())?;
     let identity_pluging = QUERY_PLUGINS
         .query(&deps.querier, wallet_addr, PLUGIN_QUERY_KEY)?

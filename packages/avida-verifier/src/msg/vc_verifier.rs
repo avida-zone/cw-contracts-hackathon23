@@ -7,6 +7,7 @@ pub struct InstantiateMsg {
     pub vectis_sub_proof_request: WSubProofReq,
     pub vectis_cred_schema: WCredentialSchema,
     pub vectis_non_cred_schema: WNonCredentialSchema,
+    pub launchpad: Addr,
 }
 
 #[cw_serde]
