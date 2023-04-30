@@ -1,0 +1,31 @@
+[package]
+name = "launchpad"
+version = "0.1.0"
+authors = ["belsy <belsy@nymlab.it>"]
+edition = "2018"
+description = "An rg-cw20 token launchpad"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+backtraces = ["cosmwasm-std/backtraces"]
+library = []
+
+[dependencies]
+cw-utils = { workspace = true }
+cw2 = { workspace = true }
+cw20 = { workspace = true }
+cosmwasm-std = { workspace = true }
+cw-storage-plus = { workspace = true }
+cosmwasm-schema = { workspace = true }
+cw-controllers = { workspace = true }
+schemars = { workspace = true }
+semver = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+avida-verifier = { path = "../../packages/avida-verifier" }
+
+[dev-dependencies]
+cosmwasm-schema = { version = "1.0.0" }
+serde_json = "1.0"
