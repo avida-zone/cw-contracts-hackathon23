@@ -83,7 +83,14 @@ pub fn exec_mint(
                     funds: vec![],
                 };
 
-                Ok(Response::new().add_message(mint_msg))
+                let to_originator = BankMsg::Send {
+                    to_address: launch_option.originator.to_string(),
+                    amount: info.funds,
+                };
+
+                Ok(Response::new()
+                    .add_message(mint_msg)
+                    .add_message(to_originator))
             }
         }
     } else {
