@@ -78,7 +78,7 @@ pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, Contract
                 &pending,
             )?;
             let event = Event::new("Avida.Launchpad.v1.MsgTokenContractInstanitated")
-                .add_attribute("contract_address", env.contract.address);
+                .add_attribute("contract_address", result.contract_address);
             Ok(Response::new().add_event(event))
         }
         _ => Err(ContractError::NotImplemented),
