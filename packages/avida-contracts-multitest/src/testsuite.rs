@@ -9,7 +9,12 @@ use rg_cw20::contract::{
     execute as rg_execute, instantiate as rg_instantiate, query as rg_query, reply as rg_reply,
 };
 
-use anoncreds_identity_plugin::contract::{
+use launchpad::contract::{
+    execute as launchpad_execute, instantiate as launchpad_instantiate, query as launchpad_query,
+    reply as launchpad_reply,
+};
+
+use avida_identity_plugin::contract::{
     execute as plugin_execute, instantiate as plugin_instantiate, query as plugin_query,
     InstantiateMsg as PluginInstMsg,
 };
@@ -18,6 +23,7 @@ use avida_verifier::{
     msg::vc_verifier::{ExecuteMsg as VcVerifierExecMsg, InstantiateMsg as VcVerifierInstMsg},
     types::{WSubProofReq, WSubProofReqParams, PLUGIN_QUERY_KEY},
 };
+use launchpad::msg::InstantiateMsg as launchpadInstantiateMsg;
 
 use cosmwasm_std::{coin, to_binary, Addr, CosmosMsg, Empty, WasmMsg};
 use serde;
@@ -33,6 +39,12 @@ const ISSUER: &str = "Issuer";
 
 pub fn contract_rg() -> Box<dyn Contract<Empty>> {
     let contract = ContractWrapper::new(rg_execute, rg_instantiate, rg_query).with_reply(rg_reply);
+    Box::new(contract)
+}
+
+pub fn contract_launchpad() -> Box<dyn Contract<Empty>> {
+    let contract = ContractWrapper::new(launchpad_execute, launchpad_instantiate, launchpad_query)
+        .with_reply(launchpad_reply);
     Box::new(contract)
 }
 
@@ -76,14 +88,35 @@ impl AvidaTest {
         let issuer_param = load_verifier_init_data("issuer");
         let wallet_param = load_verifier_init_data("wallet");
 
-        let vc_verifier_inst_msg = VcVerifierInstMsg {
-            req_params: vec![issuer_param],
-            wallet_cred_schema: wallet_param.credential_schema,
-            wallet_non_cred_schema: wallet_param.non_credential_schema,
-            wallet_sub_proof_request: wallet_param.sub_proof_request,
+        let mut vectis = PluginsSuite::init().unwrap();
+        let contract_launchpad_code_id = vectis.hub.app.store_code(contract_launchpad());
+        let contract_rg_code_id = vectis.hub.app.store_code(contract_rg());
+
+        let launchpad_inst_msg = launchpadInstantiateMsg {
+            rg_cw20_code_id: contract_rg_code_id,
         };
 
-        let mut vectis = PluginsSuite::init().unwrap();
+        // instantiates launchpad
+        let launchpad = vectis
+            .hub
+            .app
+            .instantiate_contract(
+                contract_launchpad_code_id,
+                Addr::unchecked(ISSUER),
+                &launchpad_inst_msg,
+                &[],
+                "Launchpad",
+                None,
+            )
+            .unwrap();
+
+        let vc_verifier_inst_msg = VcVerifierInstMsg {
+            launchpad,
+            vectis_cred_schema: wallet_param.credential_schema,
+            vectis_non_cred_schema: wallet_param.non_credential_schema,
+            vectis_sub_proof_request: wallet_param.sub_proof_request,
+        };
+
         let vc_verifier_code_id = vectis.hub.app.store_code(contract_vc_verifier());
         let identity_plugin_code_id = vectis.hub.app.store_code(contract_identity_plugin());
 

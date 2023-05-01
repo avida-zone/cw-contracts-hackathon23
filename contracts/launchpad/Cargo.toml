@@ -1,5 +1,5 @@
 [package]
-name = "avida-launchpad"
+name = "launchpad"
 version = "0.1.0"
 authors = ["belsy <belsy@nymlab.it>", "Arsen <arsen@nymlab.it"]
 edition = "2018"
