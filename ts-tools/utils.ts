@@ -1,6 +1,8 @@
 import path from "path";
 import fs from "fs";
 import { toUtf8 } from "@cosmjs/encoding";
+import axios from "axios";
+
 import {
   BigNumberBytes,
   WMap,
@@ -17,6 +19,34 @@ import {
   WCredentialPubKey,
   WCredentialPrimaryPubKey,
 } from "./interfaces/IdentityPlugin.types";
+import { WSubProofReqParams } from "./interfaces/RgCw20.types";
+import {
+  Network,
+  NetworkEndpoints,
+  getNetworkEndpoints,
+} from "@injectivelabs/networks";
+import { ChainGrpcWasmApi } from "@injectivelabs/sdk-ts";
+
+export class QueryService {
+  network: Network;
+  endpoints: NetworkEndpoints;
+  wasmApi: ChainGrpcWasmApi;
+  constructor(network: Network, endpoints: NetworkEndpoints) {
+    this.network = network;
+    this.endpoints = endpoints;
+    this.wasmApi = new ChainGrpcWasmApi(endpoints.grpc);
+  }
+
+  async queryWasm<T>(contractAddr: string, msg: unknown): Promise<T> {
+    const query = Buffer.from(JSON.stringify(msg)).toString("base64");
+    const response = await this.wasmApi.fetchSmartContractState(
+      contractAddr,
+      query
+    );
+    return JSON.parse(Buffer.from(response.data).toString()) as T;
+  }
+}
+
 export function writeToFile(
   fullPath: string,
   content: string,
@@ -25,6 +55,27 @@ export function writeToFile(
   const dir = path.dirname(fullPath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(fullPath, content, { encoding });
+}
+
+export interface ContractsInterface {
+  launchpad: string;
+  vcverifier: string;
+}
+
+// Used to get subProofRequestParams from server
+export async function getIssuerSubProofRequestParam(): Promise<[string]> {
+  // This gets issuer data to instantiate rg-cw20,
+  // you can pick 1 / 2 / 3 depending on what user picks on the frontend.
+  // They are https://github.com/avida-zone/ursa-service-hackathon23/blob/main/ursa-demo/setup_data/issuers.json
+  // The SAME issuers will be required when a user mints / transform / transfer / burn
+  // i.e. `https://avida-api.vectis.space/generate-proof/controller_addr/wallet_addr/13/?issuer=gayadeed&issuer=infocert`
+  const { data } = await axios.get(
+    // "https://avida-api.vectis.space/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
+    "http://0.0.0.0:8000/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
+    { responseType: "json" }
+  );
+
+  return data;
 }
 
 export const extractValueFromEvent = (
@@ -40,7 +91,12 @@ export const extractValueFromEvent = (
   if (!e) throw new Error("It was not possible to find the event");
   const a = e.attributes.find((attr) => attr.key === attribute);
   if (!a) throw new Error("It was not possible to find the attribute");
-  return JSON.parse(a.value);
+  try {
+    let value = JSON.parse(a.value);
+    return value;
+  } catch (e) {
+    return a.value;
+  }
 };
 
 export function getProof(path: string): WProof {
@@ -79,13 +135,35 @@ export function getProof(path: string): WProof {
 
 export function getSubProofReq(path: string): WSubProofReq {
   const subProofRequest = fs.readFileSync(path, { encoding: "utf8" });
-  const subPR = JSON.parse(subProofRequest);
+  return parseSubProofReq(subProofRequest);
+}
+
+export function parseSubProofReq(input: string): WSubProofReq {
+  const subPR = JSON.parse(input);
   // TODO predicates
   const revealed_attrs: WBTreeSetForString = subPR.revealed_attrs;
   return {
     revealed_attrs,
     predicates: [],
   };
+}
+
+export function parseSubProofReqParam(input: string): WSubProofReqParams {
+  const subPR: WSubProofReqParams = JSON.parse(input);
+
+  let params: WSubProofReqParams = {
+    credential_pub_key: parseCredPubKey(
+      JSON.stringify(subPR.credential_pub_key)
+    ),
+    credential_schema: subPR.credential_schema,
+    non_credential_schema: subPR.non_credential_schema,
+    rev_key_pub: null,
+    rev_reg: null,
+    sub_proof_request: parseSubProofReq(
+      JSON.stringify(subPR.sub_proof_request)
+    ),
+  };
+  return params;
 }
 
 export function getCredentialSchema(path: string): WCredentialSchema {
@@ -105,7 +183,11 @@ export function getNonce(path: string): BigNumberBytes {
 
 export function getCredentialPubKey(path: string): WCredentialPubKey {
   const credential_pub_key = fs.readFileSync(path, { encoding: "utf8" });
-  const cpk = JSON.parse(credential_pub_key);
+  return parseCredPubKey(credential_pub_key);
+}
+
+export function parseCredPubKey(input: string): WCredentialPubKey {
+  const cpk = JSON.parse(input);
   const pkey = cpk.p_key;
   const p_key: WCredentialPrimaryPubKey = {
     n: toBigNumberBytes(pkey.n),
@@ -118,6 +200,7 @@ export function getCredentialPubKey(path: string): WCredentialPubKey {
     p_key,
   };
 }
+
 export function toBigNumberBytes(s: string | any): BigNumberBytes {
   return s as string;
 }

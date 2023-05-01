@@ -5,8 +5,13 @@
   "main": "index.js",
   "scripts": {
     "upload": "ts-node ./upload.ts",
-    "types:generate": "ts-node types.ts && npm run prettier",
     "deploy": "ts-node ./deploy.ts",
+    "create-rgToken": "ts-node ./create-rgtokens.ts",
+    "create-account": "ts-node ./create_account_plugin.ts.ts",
+    "mint-rgToken": "ts-node ./mint_rg_token.ts",
+    "create-transform": "ts-node ./create-transform.ts",
+    "transform-to-rgToken": "ts-node ./transform.ts",
+    "types:generate": "ts-node generatetypes.ts && npm run prettier",
     "prettier": "prettier --write \"**/*.{js,ts}\""
   },
   "devDependencies": {
