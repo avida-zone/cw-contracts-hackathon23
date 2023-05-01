@@ -23,12 +23,17 @@ use avida_verifier::{
     msg::vc_verifier::{ExecuteMsg as VcVerifierExecMsg, InstantiateMsg as VcVerifierInstMsg},
     types::{WSubProofReq, WSubProofReqParams, PLUGIN_QUERY_KEY},
 };
-use launchpad::msg::InstantiateMsg as launchpadInstantiateMsg;
+use launchpad::msg::LaunchType;
+use launchpad::msg::{
+    ExecuteMsg as launchpadExecuteMsg, InstantiateMsg as launchpadInstantiateMsg,
+};
 
-use cosmwasm_std::{coin, to_binary, Addr, CosmosMsg, Empty, WasmMsg};
+use cosmwasm_std::{coin, to_binary, Addr, CosmosMsg, Empty, Uint128, WasmMsg};
 use serde;
 use serde_json;
 
+use cw20::Cw20Coin;
+use rg_cw20::msg::InstantiateMsg as RgCw20InstantiateMsg;
 use vectis_contract_tests::common::common::{
     proxy_exec, PRegistryExecMsg, DENOM, INSTALL_FEE, REGISTRY_FEE,
 };
@@ -65,8 +70,8 @@ pub fn contract_identity_plugin() -> Box<dyn Contract<Empty>> {
 pub struct AvidaTest {
     pub vectis: PluginsSuite,
     pub vc_verifier: Addr,
+    pub launchpad: Addr,
     pub identity_plugin_id: u64,
-    //rg_cw20: Addr,
 }
 
 pub fn load_verifier_init_data(issuer: &str) -> WSubProofReqParams {
@@ -111,7 +116,7 @@ impl AvidaTest {
             .unwrap();
 
         let vc_verifier_inst_msg = VcVerifierInstMsg {
-            launchpad,
+            launchpad: launchpad.clone(),
             vectis_cred_schema: wallet_param.credential_schema,
             vectis_non_cred_schema: wallet_param.non_credential_schema,
             vectis_sub_proof_request: wallet_param.sub_proof_request,
@@ -159,8 +164,37 @@ impl AvidaTest {
         Self {
             vectis,
             vc_verifier,
+            launchpad,
             identity_plugin_id,
         }
+    }
+
+    pub fn instantiate_rg_cw20(&mut self, launch_type: LaunchType, addr: &str, amount: Uint128) {
+        self.vectis
+            .hub
+            .app
+            .execute_contract(
+                self.vectis.hub.controller.clone(),
+                self.launchpad.clone(),
+                &launchpadExecuteMsg::Launch {
+                    msg: RgCw20InstantiateMsg {
+                        name: "Auto Gen".to_string(),
+                        symbol: "AUTO".to_string(),
+                        decimals: 3,
+                        initial_balances: vec![Cw20Coin {
+                            address: addr.into(),
+                            amount,
+                        }],
+                        mint: None,
+                        marketing: None,
+                        req_params: vec![],
+                    },
+                    launch_type,
+                    label: "launchpad".to_string(),
+                },
+                &[coin(INSTALL_FEE + 0u128, DENOM)],
+            )
+            .unwrap();
     }
 
     pub fn vectis_account_installs_identity_plugin(&mut self) -> Addr {

@@ -59,6 +59,7 @@ dependencies = [
  "avida-verifier",
  "cosmwasm-std",
  "cw-multi-test",
+ "cw20 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "launchpad",
  "rg-cw20",
  "serde",
