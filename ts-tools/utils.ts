@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { toUtf8 } from "@cosmjs/encoding";
+import { toBase64, toUtf8 } from "@cosmjs/encoding";
 import axios from "axios";
 
 import {
@@ -57,6 +57,11 @@ export function writeToFile(
   fs.writeFileSync(fullPath, content, { encoding });
 }
 
+export interface WalletPlugin {
+  plugin: string;
+  wallet: string;
+}
+
 export interface ContractsInterface {
   launchpad: string;
   vcverifier: string;
@@ -76,6 +81,37 @@ export async function getIssuerSubProofRequestParam(): Promise<[string]> {
   );
 
   return data;
+}
+
+export async function get_plugin_info(
+  controller_addr: string,
+  wallet_addr: string
+): Promise<WCredentialPubKey> {
+  const { data } = await axios.post(
+    // "https://avida-api.vectis.space/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
+    `http://0.0.0.0:8000/rg-holder-setup/${controller_addr}/${wallet_addr}`,
+    { responseType: "json" }
+  );
+
+  let subPR = JSON.parse(data);
+  let pkey = parseCredPubKey(JSON.stringify(subPR.credential_pub_key));
+  return pkey;
+}
+
+export async function generateProof(
+  controller_addr: string,
+  wallet_addr: string,
+  nonce: string
+): Promise<WProof> {
+  const { data } = await axios.post(
+    // "https://avida-api.vectis.space/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
+    `http://0.0.0.0:8000/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
+    { responseType: "json" }
+  );
+  console.log(data);
+
+  let proof = parseProof(data);
+  return proof;
 }
 
 export const extractValueFromEvent = (
@@ -99,9 +135,8 @@ export const extractValueFromEvent = (
   }
 };
 
-export function getProof(path: string): WProof {
-  const proof = fs.readFileSync(path, { encoding: "utf8" });
-  const proofJSON = JSON.parse(proof);
+export function parseProof(proofJSON: WProof): WProof {
+  //const proof = fs.readFileSync(path, { encoding: "utf8" });
 
   const aggregatedProof: WAggregatedProof = {
     c_hash: toBigNumberBytes(proofJSON.aggregated_proof.c_hash),
@@ -213,3 +248,7 @@ export function toWMap(e: {}): WMap {
   });
   return w_map;
 }
+
+export const toCosmosMsg = <T>(msg: T): string => {
+  return toBase64(toUtf8(JSON.stringify(msg)));
+};

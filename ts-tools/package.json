@@ -6,9 +6,9 @@
   "scripts": {
     "upload": "ts-node ./upload.ts",
     "deploy": "ts-node ./deploy.ts",
-    "create-rgToken": "ts-node ./create-rgtokens.ts",
-    "create-account": "ts-node ./create_account_plugin.ts.ts",
-    "mint-rgToken": "ts-node ./mint_rg_token.ts",
+    "test-create-rgToken": "ts-node ./test-create-rgtokens.ts",
+    "test-create-account": "ts-node ./test_create_account_plugin.ts",
+    "test-mint": "ts-node ./test_account_mint_rg.ts",
     "create-transform": "ts-node ./create-transform.ts",
     "transform-to-rgToken": "ts-node ./transform.ts",
     "types:generate": "ts-node generatetypes.ts && npm run prettier",
@@ -65,6 +65,7 @@
     "@injectivelabs/networks": "^1.10.8",
     "@injectivelabs/sdk-ts": "^1.10.54",
     "@injectivelabs/ts-types": "^1.10.5",
+    "@vectis/types": "^0.2.1",
     "long": "^5.2.1"
   }
 }

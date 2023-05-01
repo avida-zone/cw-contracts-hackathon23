@@ -69,12 +69,15 @@ pub fn exec_mint(
         } else {
             // Check exact funds has been sent
             let price = options.price;
-            if !price.contains(&info.funds[0]) {
+            let mut funds = info.funds[0];
+            let divided = info.funds[0].amount.checked_div(amount)?;
+            funds.amount = divided;
+            if !price.contains(&funds) {
                 Err(ContractError::MultipleDenom)
             } else {
                 let msg = avida_verifier::msg::rg_cw20::ExecuteMsg::Mint {
                     amount,
-                    recipient: info.sender.to_string(),
+                    recipient: info.sender,
                     proof,
                 };
                 let mint_msg = WasmMsg::Execute {

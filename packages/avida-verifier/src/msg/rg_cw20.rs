@@ -28,7 +28,7 @@ pub enum ExecuteMsg {
     /// and adds to the minter balance.
     Mint {
         amount: Uint128,
-        recipient: String,
+        recipient: Addr,
         proof: WProof,
     },
     /// Only with the "marketing" extension. If authorized, updates marketing metadata.
