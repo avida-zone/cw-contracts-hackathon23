@@ -1,4 +1,3 @@
-import fs from "fs";
 import {
   MsgBroadcasterWithPk,
   MsgInstantiateContract,
@@ -6,7 +5,6 @@ import {
   PrivateKey,
 } from "@injectivelabs/sdk-ts";
 import { getNetworkEndpoints, Network } from "@injectivelabs/networks";
-import { codePaths } from "./paths";
 import { accounts } from "./accounts";
 import {
   writeToFile,
@@ -14,6 +12,7 @@ import {
   getSubProofReq,
   getNonCredentialSchema,
   getCredentialSchema,
+  ContractsInterface,
 } from "./utils";
 
 interface CodeIds {
@@ -21,11 +20,6 @@ interface CodeIds {
   rgCw20CodeId: number;
   vcVerifierCodeId: number;
   avidaLaunchpadCodeId: number;
-}
-
-interface Contracts {
-  launchpad: string;
-  vcverifier: string;
 }
 
 (async function deploy() {
@@ -79,6 +73,8 @@ interface Contracts {
   //  Instntiate vc-verifier
   //
   //  ========================================
+  //  dev:
+  //  These are static for vc verifier
   let vcVerifierInsMsg = {
     vectis_sub_proof_request: getSubProofReq(
       "./registry_info/wallet_sub_proof_request.json"
@@ -112,7 +108,7 @@ interface Contracts {
   );
   console.log("2. Instantiated VcVerifier Addr: ", vcVerifierAddr);
 
-  const contracts: Contracts = {
+  const contracts: ContractsInterface = {
     launchpad: launchpadAddr,
     vcverifier: vcVerifierAddr,
   };
