@@ -1,6 +1,5 @@
 import assert from "assert";
 import {
-  MsgInstantiateContract,
   MsgBroadcasterWithPk,
   MsgExecuteContract,
   PrivateKey,
@@ -22,7 +21,6 @@ import {
 } from "./interfaces/RgCw20.types";
 import {
   WSubProofReqParams,
-  Coin,
   LaunchType,
   MintOptions,
   ExecuteMsg as LaunchExecMsg,
@@ -41,7 +39,7 @@ import {
   });
   const qs = new QueryService(network, endpoints);
 
-  const { launchpad, vcverifier } = (await import(
+  const { launchpad } = (await import(
     "./deploy/injective-testnet-deployInfo.json"
   )) as ContractsInterface;
 
@@ -110,7 +108,7 @@ import {
 
   const rg1_address = extractValueFromEvent(
     txResponse.rawLog,
-    //fixing on next deploy "wasm-Avida.Launchpad.v1.MsgTokenContractInstanitated",
+    //fixing on next deploy  "wasm-Avida.Launchpad.v1.MsgTokenContractInstantiated",
     "cosmwasm.wasm.v1.EventContractInstantiated",
     "contract_address"
   );

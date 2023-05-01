@@ -28,7 +28,8 @@ pub fn verify_vc_proof(
         ExecuteMsg::Send { proof, .. } => (proof, info.sender),
         ExecuteMsg::Mint {
             proof, recipient, ..
-        } => (proof, deps.api.addr_validate(&recipient)?),
+				// here is one ISSUE
+        } => (proof, recipient),
         ExecuteMsg::Transfer { proof, .. } => (proof, info.sender),
         _ => unreachable!(),
     };

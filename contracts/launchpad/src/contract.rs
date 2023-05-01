@@ -77,7 +77,7 @@ pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, Contract
                 deps.api.addr_validate(&result.contract_address)?,
                 &pending,
             )?;
-            let event = Event::new("Avida.Launchpad.v1.MsgTokenContractInstanitated")
+            let event = Event::new("Avida.Launchpad.v1.MsgTokenContractInstantiated")
                 .add_attribute("contract_address", result.contract_address);
             Ok(Response::new().add_event(event))
         }
