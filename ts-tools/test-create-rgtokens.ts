@@ -69,9 +69,10 @@ import {
   };
 
   // This is new because it is a brand new token, not a transformed one, i.e. must be mint option
-  let launchtype: LaunchType = { new: mint_option };
-  // For transform do
-  // let launchtype: LaunchType = { transform: "denom-to-be-transformed" };
+  let launchtype_new: LaunchType = { new: mint_option };
+  let launchtype_transform: LaunchType = {
+    transform: "denom-to-be-transformed",
+  };
 
   // Then we can now define the actual rg_cw20 instant message
   let rg20_instant_msg: RgInstMsg = {
@@ -85,29 +86,67 @@ import {
   };
 
   // Let launch it!
-  let launchMsg: LaunchExecMsg = {
+  let launchMsg_new: LaunchExecMsg = {
     launch: {
       label: "RG Token 1",
-      launch_type: launchtype,
+      launch_type: launchtype_new,
       msg: rg20_instant_msg,
     },
   };
 
-  let executeMsg = MsgExecuteContract.fromJSON({
+  let executeMsg_new = MsgExecuteContract.fromJSON({
     contractAddress: launchpad,
     sender: user.address,
-    msg: launchMsg,
+    msg: launchMsg_new,
   });
 
-  let txResponse = await client.broadcast({
-    msgs: executeMsg,
+  let txResponse_new = await client.broadcast({
+    msgs: executeMsg_new,
     injectiveAddress: user.address,
   });
 
-  console.log("txResponse:", JSON.stringify(txResponse));
+  // NOW this is the transform
+  let rg20_instant_msg_transform: RgInstMsg = {
+    decimals: 3,
+    initial_balances: [],
+    marketing: null,
+    mint: { cap: "1000000", minter: launchpad },
+    name: "RG-INJ",
+    req_params: parsed_params,
+    symbol: "rgINJ",
+  };
 
-  const rg1_address = extractValueFromEvent(
-    txResponse.rawLog,
+  let launchMsg_transform: LaunchExecMsg = {
+    launch: {
+      label: "RG-INJ",
+      launch_type: launchtype_transform,
+      msg: rg20_instant_msg_transform,
+    },
+  };
+
+  let executeMsg_transform = MsgExecuteContract.fromJSON({
+    contractAddress: launchpad,
+    sender: user.address,
+    msg: launchMsg_transform,
+  });
+
+  let txResponse_transform = await client.broadcast({
+    msgs: executeMsg_transform,
+    injectiveAddress: user.address,
+  });
+
+  console.log("txResponse NEW:", JSON.stringify(txResponse_new));
+  console.log("txResponse TRANSFORM:", JSON.stringify(txResponse_transform));
+
+  const rg1_new_address = extractValueFromEvent(
+    txResponse_new.rawLog,
+    //fixing on next deploy  "wasm-Avida.Launchpad.v1.MsgTokenContractInstantiated",
+    "cosmwasm.wasm.v1.EventContractInstantiated",
+    "contract_address"
+  );
+
+  const rg1_transform_address = extractValueFromEvent(
+    txResponse_transform.rawLog,
     //fixing on next deploy  "wasm-Avida.Launchpad.v1.MsgTokenContractInstantiated",
     "cosmwasm.wasm.v1.EventContractInstantiated",
     "contract_address"
@@ -115,17 +154,29 @@ import {
 
   writeToFile(
     "./deploy/rg1_new_address.json",
-    JSON.stringify(rg1_address, null, 2)
+    JSON.stringify(rg1_new_address, null, 2)
   );
 
-  const minter: RgMinterData = await qs.queryWasm(rg1_address, { minter: {} });
+  writeToFile(
+    "./deploy/rg1_transform_address.json",
+    JSON.stringify(rg1_transform_address, null, 2)
+  );
+
+  const minter: RgMinterData = await qs.queryWasm(rg1_new_address, {
+    minter: {},
+  });
   assert.equal(minter.minter, launchpad);
   console.log("Minter: ", minter);
 
-  const rgContracts = await qs.queryWasm(launchpad, {
+  const rgContractsNew = await qs.queryWasm(launchpad, {
     registered_contracts: { contract_type: "new" },
+  });
+  console.log("NEW Rg20 on Launchpad: ", rgContractsNew);
+
+  const rgContractsTransform = await qs.queryWasm(launchpad, {
+    registered_contracts: { contract_type: "transform" },
     // for transform do
     // registered_contracts: { contract_type: "transform" },
   });
-  console.log("Rg20 on Launchpad: ", rgContracts);
+  console.log("TRANSFORM Rg20 on Launchpad: ", rgContractsTransform);
 })();

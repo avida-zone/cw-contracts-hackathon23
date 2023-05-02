@@ -1,8 +1,9 @@
 #[cfg(not(feature = "library"))]
 pub(crate) use cosmwasm_std::entry_point;
+use cosmwasm_std::Storage;
 pub(crate) use cosmwasm_std::{
-    from_binary, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdError,
-    StdResult, Uint128,
+    from_binary, to_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response,
+    StdError, StdResult, Uint128,
 };
 
 pub(crate) use avida_verifier::{
@@ -156,27 +157,33 @@ pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, Contract
             let (info, pending_tx) = PENDING_VERIFICATION.load(deps.storage)?;
             let verified: bool = from_binary(&verification_result.data.unwrap())?;
             if verified {
-                // Do not use update for the first one as it only does Some(f(x))
-                let old_nonce = VC_NONCE.may_load(deps.storage, &info.sender)?.unwrap_or(0);
-                VC_NONCE.save(
-                    deps.storage,
-                    &info.sender,
-                    &old_nonce.checked_add(1).ok_or(ContractError::Overflow)?,
-                )?;
                 match pending_tx {
                     ExecuteMsg::Transfer {
                         recipient, amount, ..
-                    } => execute_transfer(deps, env, info, recipient, amount),
-                    ExecuteMsg::Burn { amount, .. } => execute_burn(deps, env, info, amount),
+                    } => {
+                        update_nonce(deps.storage, &info.sender)?;
+                        execute_transfer(deps, env, info, recipient, amount)
+                    }
+                    ExecuteMsg::Burn { amount, .. } => {
+                        update_nonce(deps.storage, &info.sender)?;
+                        execute_burn(deps, env, info, amount)
+                    }
                     ExecuteMsg::Send {
                         contract,
                         amount,
                         msg,
                         ..
-                    } => execute_send(deps, env, info, contract, amount, msg),
+                    } => {
+                        update_nonce(deps.storage, &info.sender)?;
+                        execute_send(deps, env, info, contract, amount, msg)
+                    }
                     ExecuteMsg::Mint {
                         amount, recipient, ..
-                    } => execute_mint(deps, info, amount, recipient),
+                    } => {
+                        // The recipient is the person who created the mint message
+                        update_nonce(deps.storage, &recipient)?;
+                        execute_mint(deps, info, amount, recipient)
+                    }
                     // We handled these cases already because they do not need proofs
                     _ => unreachable!(),
                 }
@@ -186,4 +193,12 @@ pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, Contract
         }
         _ => Err(ContractError::InvalidReplyId),
     }
+}
+
+fn update_nonce(storage: &mut dyn Storage, target: &Addr) -> Result<(), ContractError> {
+    // Do not use update for the first one as it only does Some(f(x))
+    let old_nonce = VC_NONCE.may_load(storage, target)?.unwrap_or(0);
+    let new_nonce = old_nonce.checked_add(1).ok_or(ContractError::Overflow)?;
+    VC_NONCE.save(storage, target, &new_nonce)?;
+    Ok(())
 }
