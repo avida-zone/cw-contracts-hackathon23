@@ -71,7 +71,7 @@ import {
   // This is new because it is a brand new token, not a transformed one, i.e. must be mint option
   let launchtype_new: LaunchType = { new: mint_option };
   let launchtype_transform: LaunchType = {
-    transform: "denom-to-be-transformed",
+    transform: "inj",
   };
 
   // Then we can now define the actual rg_cw20 instant message

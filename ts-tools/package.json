@@ -9,8 +9,8 @@
     "test-create-rgToken": "ts-node ./test-create-rgtokens.ts",
     "test-create-account": "ts-node ./test_create_account_plugin.ts",
     "test-mint": "ts-node ./test_account_mint_rg.ts",
-    "create-transform": "ts-node ./create-transform.ts",
-    "transform-to-rgToken": "ts-node ./transform.ts",
+    "test-transform-inj": "ts-node ./test_account_transform.ts",
+    "test-revert-rginj": "ts-node ./test_revert_transform.ts",
     "types:generate": "ts-node generatetypes.ts && npm run prettier",
     "prettier": "prettier --write \"**/*.{js,ts}\""
   },
