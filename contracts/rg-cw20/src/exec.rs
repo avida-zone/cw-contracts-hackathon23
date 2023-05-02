@@ -1,4 +1,4 @@
-use cosmwasm_std::WasmMsg;
+use cosmwasm_std::{Addr, WasmMsg};
 
 use crate::contract::*;
 
@@ -90,7 +90,7 @@ pub fn execute_mint(
     deps: DepsMut,
     info: MessageInfo,
     amount: Uint128,
-    recipient: String,
+    recipient: Addr,
 ) -> Result<Response, ContractError> {
     if amount == Uint128::zero() {
         return Err(ContractError::InvalidZeroAmount {});
@@ -118,7 +118,7 @@ pub fn execute_mint(
     // add amount to recipient balance
     BALANCES.update(
         deps.storage,
-        &deps.api.addr_validate(&recipient)?,
+        &recipient,
         |balance: Option<Uint128>| -> StdResult<_> { Ok(balance.unwrap_or_default() + amount) },
     )?;
 

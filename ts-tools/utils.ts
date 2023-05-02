@@ -88,7 +88,7 @@ export async function get_plugin_info(
   wallet_addr: string
 ): Promise<WCredentialPubKey> {
   const { data } = await axios.post(
-    // "https://avida-api.vectis.space/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
+    // `https://avida-api.vectis.space/rg-holder-setup/${controller_addr}/${wallet_addr}`,
     `http://0.0.0.0:8000/rg-holder-setup/${controller_addr}/${wallet_addr}`,
     { responseType: "json" }
   );
@@ -104,7 +104,7 @@ export async function generateProof(
   nonce: string
 ): Promise<WProof> {
   const { data } = await axios.post(
-    // "https://avida-api.vectis.space/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
+    //`https://avida-api.vectis.space/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
     `http://0.0.0.0:8000/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
     { responseType: "json" }
   );

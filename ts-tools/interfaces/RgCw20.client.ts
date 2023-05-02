@@ -202,7 +202,7 @@ export interface RgCw20Interface extends RgCw20ReadOnlyInterface {
     }: {
       amount: Uint128;
       proof: WProof;
-      recipient: string;
+      recipient: Addr;
     },
     fee?: number | StdFee | "auto",
     memo?: string,
@@ -345,7 +345,7 @@ export class RgCw20Client extends RgCw20QueryClient implements RgCw20Interface {
     }: {
       amount: Uint128;
       proof: WProof;
-      recipient: string;
+      recipient: Addr;
     },
     fee: number | StdFee | "auto" = "auto",
     memo?: string,

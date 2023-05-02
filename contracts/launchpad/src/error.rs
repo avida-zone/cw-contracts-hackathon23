@@ -13,6 +13,9 @@ pub enum ContractError {
     #[error("Not implemented")]
     NotImplemented,
 
+    #[error("Uint128 Overflow")]
+    Overflow,
+
     #[error("Transformer Does Not Have Mint Price")]
     TransformerDoesNotHaveMintPrice,
 
@@ -27,4 +30,13 @@ pub enum ContractError {
 
     #[error("Unexpected Launch Type")]
     UnexpectedLaunchType,
+
+    #[error("IncorrectFunds")]
+    IncorrectFunds,
+
+    #[error("Token Addr Validation  {0}")]
+    TokenAddrValidation(String),
+
+    #[error("Unauthorised")]
+    Unauthorised,
 }

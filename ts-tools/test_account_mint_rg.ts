@@ -19,9 +19,14 @@ import {
   generateProof,
 } from "./utils";
 import { ExecuteMsg as LaunchPadMsg } from "./interfaces/Launchpad.types";
+import { ExecuteMsg as Rg20Msg } from "./interfaces/RgCw20.types";
+import {
+  ExecuteMsg as VcExecMsg,
+  BigNumberBytes,
+} from "./interfaces/VcVerifier.types";
 import { ProxyT } from "@vectis/types";
 
-(async function create_() {
+(async function create_mint() {
   // Template
   const { user } = accounts;
   const privateKey = PrivateKey.fromMnemonic(user.mnemonic);
@@ -34,7 +39,7 @@ import { ProxyT } from "@vectis/types";
   });
   const qs = new QueryService(network, endpoints);
 
-  const { launchpad } = (await import(
+  const { launchpad, vcverifier } = (await import(
     "./deploy/injective-testnet-deployInfo.json"
   )) as ContractsInterface;
 
@@ -47,6 +52,23 @@ import { ProxyT } from "@vectis/types";
     proof_nonce: { address: wallet },
   });
   console.log("nonce: ", nonce);
+
+  const rgContracts = await qs.queryWasm(launchpad, {
+    registered_contracts: { contract_type: "new" },
+    // for transform do
+    // registered_contracts: { contract_type: "transform" },
+  });
+  console.log("Rg20 on Launchpad: ", JSON.stringify(rgContracts));
+
+  const results = await qs.queryWasm(launchpad, {
+    verifier: {},
+  });
+  console.log("verifier on launchpad", JSON.stringify(results));
+
+  const viaRgToken = await qs.queryWasm(rg1_new_addr.default, {
+    token_info: {},
+  });
+  console.log("verifier on launchpad", JSON.stringify(viaRgToken));
 
   // AGAIN, here we assumed ALL 3 issuers are on the rg-cw20 address
   // defined when we launched the token in test-create-rgtokens.ts
@@ -63,12 +85,25 @@ import { ProxyT } from "@vectis/types";
     },
   };
 
+  //let msg: VcExecMsg = {
+  //  verify: {
+  //    proof,
+  //    proof_req_nonce: "0",
+  //    wallet_addr: user.address,
+  //  },
+  //};
+
+  //let mint = MsgExecuteContract.fromJSON({
+  //  contractAddress: vcverifier,
+  //  sender: user.address,
+  //  msg: msg,
+  //});
+
   let proxy_msg: ProxyT.CosmosMsgForEmpty = {
     wasm: {
       execute: {
         contract_addr: launchpad,
-        // THIS NEEDS TO BE FIXED should be price * amount
-        funds: [{ denom: "inj", amount: "3" }],
+        funds: [{ denom: "inj", amount: "33" }],
         msg: toCosmosMsg(mint_msg),
       },
     },
@@ -78,8 +113,7 @@ import { ProxyT } from "@vectis/types";
     contractAddress: wallet,
     sender: user.address,
     msg: { execute: { msgs: [proxy_msg] } },
-    // THIS NEEDS TO BE FIXED should be price * amount
-    funds: { denom: "inj", amount: "3" },
+    funds: { denom: "inj", amount: "33" },
   });
 
   let res = await client.broadcast({

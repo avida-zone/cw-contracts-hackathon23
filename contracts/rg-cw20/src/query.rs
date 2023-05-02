@@ -18,11 +18,13 @@ pub fn query_nonce(deps: Deps, address: String) -> StdResult<u64> {
 
 pub fn query_token_info(deps: Deps) -> StdResult<TokenInfoResponse> {
     let info = TOKEN_INFO.load(deps.storage)?;
+    let verifier = VERIFIER.query(&deps.querier, LAUNCHPAD.load(deps.storage)?)?;
     let res = TokenInfoResponse {
         name: info.name,
         symbol: info.symbol,
         decimals: info.decimals,
         total_supply: info.total_supply,
+        verifier: verifier.to_string(),
     };
     Ok(res)
 }

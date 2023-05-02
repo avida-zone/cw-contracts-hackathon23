@@ -46,6 +46,9 @@ pub enum ContractError {
 
     #[error("No Identity Plugin found on Vectis Account")]
     NoIdentityPlugin,
+
+    #[error("Address Conversion expected: {expected} received: {received}")]
+    AddressConversion { expected: String, received: String },
 }
 
 impl From<UrsaCryptoError> for ContractError {

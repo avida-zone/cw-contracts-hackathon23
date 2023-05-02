@@ -39,6 +39,10 @@ pub enum ExecuteMsg {
         /// The recipient (unchecked since non-rg)
         recipient: String,
     },
+    UpdateVerifier {
+        /// The address of the verifier
+        address: String,
+    },
 }
 
 #[cw_serde]
@@ -50,6 +54,8 @@ pub enum QueryMsg {
         limit: Option<u64>,
         contract_type: ContractType,
     },
+    #[returns(Addr)]
+    Verifier {},
 }
 
 #[cw_serde]

@@ -14,7 +14,7 @@ import {
 } from "./utils";
 import {
   WCredentialPubKey,
-  InstantiateMsg as IdentityInstMsg,
+  InstantiateMsg as IdentityrnstMsg,
 } from "./interfaces/IdentityPlugin.types";
 import { ProxyT, FactoryT } from "@vectis/types";
 
