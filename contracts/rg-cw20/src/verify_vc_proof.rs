@@ -22,13 +22,13 @@ pub fn verify_vc_proof(
         .may_load(deps.storage, &info.sender)?
         .unwrap_or_default()
         .to_string();
+
     let proof_req_nonce = BigNumberBytes(nonce);
     let (proof, wallet_addr) = match msg {
         ExecuteMsg::Burn { proof, .. } => (proof, info.sender),
         ExecuteMsg::Send { proof, .. } => (proof, info.sender),
         ExecuteMsg::Mint {
             proof, recipient, ..
-				// here is one ISSUE
         } => (proof, recipient),
         ExecuteMsg::Transfer { proof, .. } => (proof, info.sender),
         _ => unreachable!(),

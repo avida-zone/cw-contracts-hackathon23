@@ -6,15 +6,17 @@ pub(crate) use cosmwasm_std::{
 };
 
 pub(crate) use avida_verifier::{
-    msg::launchpad::ExecuteMsg as LaunchpadExecMsg, msg::rg_cw20::RgMinterData,
-    state::launchpad::RG_TRANSFORM, types::SubProofReqParams,
+    msg::launchpad::ExecuteMsg as LaunchpadExecMsg,
+    msg::rg_cw20::{RgMinterData, TokenInfoResponse},
+    state::launchpad::{RG_TRANSFORM, VERIFIER},
+    types::SubProofReqParams,
 };
 use cw_utils::parse_reply_execute_data;
 
 use cw2::set_contract_version;
 pub(crate) use cw20::{
     BalanceResponse, Cw20Coin, Cw20ReceiveMsg, DownloadLogoResponse, EmbeddedLogo, Logo, LogoInfo,
-    MarketingInfoResponse, TokenInfoResponse,
+    MarketingInfoResponse,
 };
 
 use crate::state::PENDING_VERIFICATION;
@@ -154,11 +156,13 @@ pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, Contract
             let (info, pending_tx) = PENDING_VERIFICATION.load(deps.storage)?;
             let verified: bool = from_binary(&verification_result.data.unwrap())?;
             if verified {
-                VC_NONCE.update(deps.storage, &info.sender, |old| {
-                    old.unwrap_or_default()
-                        .checked_add(1)
-                        .ok_or(ContractError::Overflow)
-                })?;
+                // Do not use update for the first one as it only does Some(f(x))
+                let old_nonce = VC_NONCE.may_load(deps.storage, &info.sender)?.unwrap_or(0);
+                VC_NONCE.save(
+                    deps.storage,
+                    &info.sender,
+                    &old_nonce.checked_add(1).ok_or(ContractError::Overflow)?,
+                )?;
                 match pending_tx {
                     ExecuteMsg::Transfer {
                         recipient, amount, ..
@@ -170,10 +174,10 @@ pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, Contract
                         msg,
                         ..
                     } => execute_send(deps, env, info, contract, amount, msg),
-                    // We handled these cases already because they do not need proofs
                     ExecuteMsg::Mint {
                         amount, recipient, ..
                     } => execute_mint(deps, info, amount, recipient),
+                    // We handled these cases already because they do not need proofs
                     _ => unreachable!(),
                 }
             } else {

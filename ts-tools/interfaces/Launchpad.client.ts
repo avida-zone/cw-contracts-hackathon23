@@ -77,6 +77,7 @@ export interface LaunchpadReadOnlyInterface {
     limit?: number;
     startAfter?: string;
   }) => Promise<ArrayOfContractResponse>;
+  verifier: () => Promise<Addr>;
 }
 export class LaunchpadQueryClient implements LaunchpadReadOnlyInterface {
   client: CosmWasmClient;
@@ -86,6 +87,7 @@ export class LaunchpadQueryClient implements LaunchpadReadOnlyInterface {
     this.client = client;
     this.contractAddress = contractAddress;
     this.registeredContracts = this.registeredContracts.bind(this);
+    this.verifier = this.verifier.bind(this);
   }
 
   registeredContracts = async ({
@@ -103,6 +105,11 @@ export class LaunchpadQueryClient implements LaunchpadReadOnlyInterface {
         limit,
         start_after: startAfter,
       },
+    });
+  };
+  verifier = async (): Promise<Addr> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      verifier: {},
     });
   };
 }
@@ -161,6 +168,16 @@ export interface LaunchpadInterface extends LaunchpadReadOnlyInterface {
     memo?: string,
     funds?: Coin[]
   ) => Promise<ExecuteResult>;
+  updateVerifier: (
+    {
+      address,
+    }: {
+      address: string;
+    },
+    fee?: number | StdFee | "auto",
+    memo?: string,
+    funds?: Coin[]
+  ) => Promise<ExecuteResult>;
 }
 export class LaunchpadClient
   extends LaunchpadQueryClient
@@ -183,6 +200,7 @@ export class LaunchpadClient
     this.mint = this.mint.bind(this);
     this.transform = this.transform.bind(this);
     this.revert = this.revert.bind(this);
+    this.updateVerifier = this.updateVerifier.bind(this);
   }
 
   launch = async (
@@ -288,6 +306,29 @@ export class LaunchpadClient
         revert: {
           amount,
           recipient,
+        },
+      },
+      fee,
+      memo,
+      funds
+    );
+  };
+  updateVerifier = async (
+    {
+      address,
+    }: {
+      address: string;
+    },
+    fee: number | StdFee | "auto" = "auto",
+    memo?: string,
+    funds?: Coin[]
+  ): Promise<ExecuteResult> => {
+    return await this.client.execute(
+      this.sender,
+      this.contractAddress,
+      {
+        update_verifier: {
+          address,
         },
       },
       fee,

@@ -149,7 +149,7 @@ export type ExecuteMsg =
       mint: {
         amount: Uint128;
         proof: WProof;
-        recipient: string;
+        recipient: Addr;
       };
     }
   | {
@@ -267,4 +267,5 @@ export interface TokenInfoResponse {
   name: string;
   symbol: string;
   total_supply: Uint128;
+  verifier: string;
 }

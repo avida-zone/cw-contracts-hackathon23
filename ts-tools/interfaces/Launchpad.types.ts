@@ -39,6 +39,11 @@ export type ExecuteMsg =
         amount: Uint128;
         recipient: string;
       };
+    }
+  | {
+      update_verifier: {
+        address: string;
+      };
     };
 export type LaunchType =
   | {
@@ -215,13 +220,17 @@ export interface WPrimaryPredicateInequalityProof {
   u: WMap;
   [k: string]: unknown;
 }
-export type QueryMsg = {
-  registered_contracts: {
-    contract_type: ContractType;
-    limit?: number | null;
-    start_after?: string | null;
-  };
-};
+export type QueryMsg =
+  | {
+      registered_contracts: {
+        contract_type: ContractType;
+        limit?: number | null;
+        start_after?: string | null;
+      };
+    }
+  | {
+      verifier: {};
+    };
 export type ContractType = "new" | "transform";
 export type ArrayOfContractResponse = ContractResponse[];
 export interface ContractResponse {

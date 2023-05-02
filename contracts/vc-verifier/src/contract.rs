@@ -94,7 +94,7 @@ pub fn query(_deps: Deps, _env: Env, _msg: QueryMsg) -> StdResult<Binary> {
 ///
 /// The verifier does not use any randomness
 ///
-/// The format of the proof to be verified is dependent on the `proof-request-data`
+/// The format of the proof to be verified is dependent on the `rg-cw0-token`
 pub fn execute_proof_verify(
     deps: DepsMut,
     info: MessageInfo,
@@ -112,11 +112,13 @@ pub fn execute_proof_verify(
     let identity_pluging = QUERY_PLUGINS
         .query(&deps.querier, wallet_addr, PLUGIN_QUERY_KEY)?
         .ok_or(ContractError::NoIdentityPlugin)?;
+    // 1
     let wallet_cred_pub_key =
         SELF_ISSUED_CRED_DEF.query(&deps.querier, deps.api.addr_humanize(&identity_pluging)?)?;
 
     let sub_proof_requests = SUB_PROOF_REQ_PARAMS.query(&deps.querier, info.sender)?;
 
+    // 2
     let verified = proof_verify(
         deps.storage,
         s_proof,
@@ -154,15 +156,17 @@ fn proof_verify(
         })
         .ok_or(ContractError::MissingWalletAttr {})?;
 
-    let user = Addr::from_vec(
-        sub_proof
-            .primary_proof
-            .eq_proof
-            .revealed_attrs
-            .get("controller_addr")
-            .unwrap()
-            .to_bytes()?,
-    )?;
+    let user_bn = sub_proof
+        .primary_proof
+        .eq_proof
+        .revealed_attrs
+        .get("controller_addr")
+        .unwrap();
+    let user =
+        Addr::from_vec(user_bn.to_bytes()?).map_err(|_| ContractError::AddressConversion {
+            expected: controller_addr.to_string(),
+            received: user_bn.to_string(),
+        })?;
     if user != controller_addr {
         return Err(ContractError::InvalidWalletProof {});
     }

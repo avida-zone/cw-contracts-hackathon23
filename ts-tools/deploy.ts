@@ -1,7 +1,7 @@
 import {
   MsgBroadcasterWithPk,
   MsgInstantiateContract,
-  MsgStoreCode,
+  MsgExecuteContract,
   PrivateKey,
 } from "@injectivelabs/sdk-ts";
 import { getNetworkEndpoints, Network } from "@injectivelabs/networks";
@@ -14,6 +14,8 @@ import {
   getCredentialSchema,
   ContractsInterface,
 } from "./utils";
+import { InstantiateMsg as VcVerifierInstMsg } from "./interfaces/VcVerifier.types";
+import { ExecuteMsg as LaunchpadExecMsg } from "./interfaces/Launchpad.types";
 
 interface CodeIds {
   avidaIdentityPluginCodeId: number;
@@ -52,7 +54,7 @@ interface CodeIds {
     sender: admin.address,
     codeId: avidaLaunchpadCodeId,
     label: "AVIPAD",
-    admin: null,
+    admin: admin.address,
     msg: { rg_cw20_code_id: rgCw20CodeId },
   });
 
@@ -75,7 +77,7 @@ interface CodeIds {
   //  ========================================
   //  dev:
   //  These are static for vc verifier
-  let vcVerifierInsMsg = {
+  let vcVerifierInsMsg: VcVerifierInstMsg = {
     vectis_sub_proof_request: getSubProofReq(
       "./registry_info/wallet_sub_proof_request.json"
     ),
@@ -92,12 +94,12 @@ interface CodeIds {
     sender: admin.address,
     codeId: vcVerifierCodeId,
     label: "AVIDA VC Verifier",
-    admin: null,
-    msg: { vcVerifierInsMsg },
+    admin: admin.address,
+    msg: vcVerifierInsMsg,
   });
 
   txResponse = await adminClient.broadcast({
-    msgs: msg,
+    msgs: verifierMsg,
     injectiveAddress: admin.address,
   });
 
@@ -117,4 +119,36 @@ interface CodeIds {
     `./deploy/injective-testnet-deployInfo.json`,
     JSON.stringify(contracts, null, 2)
   );
+
+  //===========================================
+  //
+  // UPDATE verifier
+  //
+  // ==========================================
+
+  //const { launchpad, vcverifier } = (await import(
+  //  "./deploy/injective-testnet-deployInfo.json"
+  //)) as ContractsInterface;
+
+  //let vcVerifierAddr = vcverifier;
+  //let launchpadAddr = launchpad;
+
+  let update_verifier_msg: LaunchpadExecMsg = {
+    update_verifier: {
+      address: vcVerifierAddr,
+    },
+  };
+
+  let update = MsgExecuteContract.fromJSON({
+    contractAddress: launchpadAddr,
+    sender: admin.address,
+    msg: update_verifier_msg,
+  });
+
+  let res = await adminClient.broadcast({
+    msgs: update,
+    injectiveAddress: admin.address,
+  });
+
+  console.log(res);
 })();

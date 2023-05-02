@@ -2,9 +2,11 @@ use avida_verifier::{
     msg::rg_cw20::{InstantiateMsg as RgCw20InstantiateMsg, RgMinterData},
     types::WProof,
 };
+
 use cosmwasm_std::{BankMsg, Coin};
 
 use crate::contract::*;
+use crate::state::VERIFIER;
 
 pub fn instantiate_rg_cw20(
     deps: DepsMut,
@@ -54,6 +56,21 @@ pub fn instantiate_rg_cw20(
     Ok(res)
 }
 
+pub fn exec_update_verifier(
+    deps: DepsMut,
+    info: MessageInfo,
+    address: String,
+) -> Result<Response, ContractError> {
+    let validated_addr = deps.api.addr_validate(&address)?;
+    let deployer = DEPLOYER.load(deps.storage)?;
+    if info.sender != deps.api.addr_humanize(&deployer)? {
+        Err(ContractError::Unauthorised)
+    } else {
+        VERIFIER.save(deps.storage, &validated_addr)?;
+        Ok(Response::new().add_attribute("Verifier updated", validated_addr))
+    }
+}
+
 pub fn exec_mint(
     deps: DepsMut,
     info: MessageInfo,
@@ -68,11 +85,17 @@ pub fn exec_mint(
             Err(ContractError::MultipleDenom)
         } else {
             // Check exact funds has been sent
-            let price = options.price;
-            let mut funds = info.funds[0];
-            let divided = info.funds[0].amount.checked_div(amount)?;
-            funds.amount = divided;
-            if !price.contains(&funds) {
+            let price = options
+                .price
+                .iter()
+                .find(|coin| coin.denom == info.funds[0].denom)
+                .ok_or(ContractError::IncorrectFunds)?;
+            if price
+                .amount
+                .checked_mul(amount)
+                .map_err(|_| ContractError::Overflow)?
+                != info.funds[0].amount
+            {
                 Err(ContractError::MultipleDenom)
             } else {
                 let msg = avida_verifier::msg::rg_cw20::ExecuteMsg::Mint {
@@ -119,7 +142,7 @@ pub fn exec_transform(
             } else {
                 let msg = avida_verifier::msg::rg_cw20::ExecuteMsg::Mint {
                     amount: info.funds[0].amount,
-                    recipient: info.sender.to_string(),
+                    recipient: info.sender,
                     proof,
                 };
                 let mint_msg = WasmMsg::Execute {

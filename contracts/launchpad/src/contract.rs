@@ -1,17 +1,18 @@
 pub(crate) use crate::{
     error::ContractError,
-    exec::{exec_mint, exec_revert, exec_transform, instantiate_rg_cw20},
+    exec::{exec_mint, exec_revert, exec_transform, exec_update_verifier, instantiate_rg_cw20},
     msg::{ContractResponse, ContractType, ExecuteMsg, InstantiateMsg, LaunchType, QueryMsg},
     state::{
         LaunchpadOptions, DEPLOYER, PENDING_INST, RG_CONTRACTS, RG_CW_20_CODE_ID, RG_TRANSFORM,
     },
 };
 
+use avida_verifier::state::launchpad::VERIFIER;
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 pub(crate) use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, Event, MessageInfo, Order, Reply, Response, StdResult,
-    SubMsg, Uint128, WasmMsg,
+    to_binary, Addr, Binary, Deps, DepsMut, Env, Event, MessageInfo, Order, Reply, Response,
+    StdResult, SubMsg, Uint128, WasmMsg,
 };
 use cw2::set_contract_version;
 use cw_storage_plus::Bound;
@@ -57,6 +58,7 @@ pub fn execute(
             amount,
             proof,
         } => exec_mint(deps, info, rg_token_addr, amount, proof),
+        ExecuteMsg::UpdateVerifier { address } => exec_update_verifier(deps, info, address),
     }
 }
 
@@ -93,6 +95,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             limit,
             contract_type,
         } => to_binary(&query_contracts(deps, start_after, limit, contract_type)?),
+        QueryMsg::Verifier {} => to_binary(&query_verifier(deps)?),
     }
 }
 
@@ -108,6 +111,9 @@ pub fn factory_instantiate(
     let event = Event::new("Avida.Launchpad.v1.MsgInstantiate")
         .add_attribute("contract_address", env.contract.address);
     Ok(Response::new().add_event(event))
+}
+pub fn query_verifier(deps: Deps) -> StdResult<Addr> {
+    VERIFIER.load(deps.storage)
 }
 
 pub const DEFAULT_LIMIT: u64 = 20;

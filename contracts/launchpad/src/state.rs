@@ -1,4 +1,6 @@
-pub use avida_verifier::state::launchpad::{LaunchpadOptions, RG_CONTRACTS, RG_TRANSFORM};
+pub use avida_verifier::state::launchpad::{
+    LaunchpadOptions, RG_CONTRACTS, RG_TRANSFORM, VERIFIER,
+};
 use cosmwasm_std::{CanonicalAddr, Coin};
 use cw_storage_plus::Item;
 

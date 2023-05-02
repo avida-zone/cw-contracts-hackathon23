@@ -3,7 +3,7 @@ use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{Addr, Binary, StdError, StdResult, Uint128};
 use cw20::{
     AllAccountsResponse, BalanceResponse, Cw20Coin, DownloadLogoResponse, Logo,
-    MarketingInfoResponse, TokenInfoResponse,
+    MarketingInfoResponse,
 };
 
 #[cw_serde]
@@ -157,4 +157,13 @@ pub enum QueryMsg {
     /// Return type: DownloadLogoResponse.
     #[returns(DownloadLogoResponse)]
     DownloadLogo {},
+}
+
+#[cw_serde]
+pub struct TokenInfoResponse {
+    pub name: String,
+    pub symbol: String,
+    pub decimals: u8,
+    pub total_supply: Uint128,
+    pub verifier: String,
 }
