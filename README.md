@@ -23,3 +23,5 @@ This repo holds the submission to the Injective 2023 Hackathon.
 - tests
   - [avida-contracts-multitest] -> holds contract multitest
   - [ts-tools] -> deploys all contracts to testnet, has ts types and tests interactions
+___
+Copyright 2023 NYMLAB Srl
