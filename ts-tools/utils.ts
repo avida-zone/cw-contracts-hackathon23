@@ -75,8 +75,8 @@ export async function getIssuerSubProofRequestParam(): Promise<[string]> {
   // The SAME issuers will be required when a user mints / transform / transfer / burn
   // i.e. `https://avida-api.vectis.space/generate-proof/controller_addr/wallet_addr/13/?issuer=gayadeed&issuer=infocert`
   const { data } = await axios.get(
-    // "https://avida-api.vectis.space/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
-    "http://0.0.0.0:8000/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
+    "https://avida-api.vectis.space/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
+    //"http://0.0.0.0:8000/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
     { responseType: "json" }
   );
 
@@ -88,8 +88,8 @@ export async function get_plugin_info(
   wallet_addr: string
 ): Promise<WCredentialPubKey> {
   const { data } = await axios.post(
-    // `https://avida-api.vectis.space/rg-holder-setup/${controller_addr}/${wallet_addr}`,
-    `http://0.0.0.0:8000/rg-holder-setup/${controller_addr}/${wallet_addr}`,
+    `https://avida-api.vectis.space/rg-holder-setup/${controller_addr}/${wallet_addr}`,
+    //`http://0.0.0.0:8000/rg-holder-setup/${controller_addr}/${wallet_addr}`,
     { responseType: "json" }
   );
 
@@ -104,8 +104,8 @@ export async function generateProof(
   nonce: string
 ): Promise<WProof> {
   const { data } = await axios.post(
-    //`https://avida-api.vectis.space/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
-    `http://0.0.0.0:8000/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
+    `https://avida-api.vectis.space/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
+    //`http://0.0.0.0:8000/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
     { responseType: "json" }
   );
   console.log(data);

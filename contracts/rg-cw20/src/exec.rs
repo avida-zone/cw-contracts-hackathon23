@@ -64,9 +64,9 @@ pub fn execute_burn(
         .add_attribute("action", "burn")
         .add_attribute("from", info.sender.clone())
         .add_attribute("amount", amount);
-    // if this was a transformed, we tell the Launchpad to send back the non-rgToken
-    let launchpad = LAUNCHPAD.load(deps.storage)?;
 
+    // If this was a transformed, we tell the Launchpad to send back the non-rgToken
+    let launchpad = LAUNCHPAD.load(deps.storage)?;
     if RG_TRANSFORM
         .query(&deps.querier, launchpad.clone(), env.contract.address)?
         .is_some()
