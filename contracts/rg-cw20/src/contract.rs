@@ -9,7 +9,7 @@ pub(crate) use cosmwasm_std::{
 pub(crate) use avida_verifier::{
     msg::launchpad::ExecuteMsg as LaunchpadExecMsg,
     msg::rg_cw20::{RgMinterData, TokenInfoResponse},
-    state::launchpad::{ADAPTOR, RG_TRANSFORM, VERIFIER},
+    state::launchpad::{ADAPTER, RG_TRANSFORM, VERIFIER},
     types::SubProofReqParams,
 };
 use cw_utils::parse_reply_execute_data;
@@ -130,11 +130,11 @@ pub fn execute(
             marketing,
         } => execute_update_marketing(deps, env, info, project, description, marketing),
         ExecuteMsg::UploadLogo(logo) => execute_upload_logo(deps, env, info, logo),
-        ExecuteMsg::AdaptorTransfer {
+        ExecuteMsg::AdapterTransfer {
             sender,
             recipient,
             amount,
-        } => execute_adaptor_transfer(deps, info, sender, recipient, amount),
+        } => execute_adapter_transfer(deps, info, sender, recipient, amount),
         _ => verify_vc_proof(deps, env, info, msg),
     }
 }

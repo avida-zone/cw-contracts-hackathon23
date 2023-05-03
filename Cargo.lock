@@ -56,7 +56,7 @@ name = "avida-contracts-multitest"
 version = "0.1.0"
 dependencies = [
  "avida-identity-plugin",
- "avida-verifier",
+ "avida-verifier 0.1.0",
  "cosmwasm-std",
  "cw-multi-test",
  "rg-cw20",
@@ -71,7 +71,7 @@ dependencies = [
 name = "avida-identity-plugin"
 version = "0.1.0"
 dependencies = [
- "avida-verifier",
+ "avida-verifier 0.1.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-controllers",
@@ -89,7 +89,7 @@ dependencies = [
 name = "avida-launchpad"
 version = "0.1.0"
 dependencies = [
- "avida-verifier",
+ "avida-verifier 0.1.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-controllers",
@@ -108,6 +108,22 @@ dependencies = [
 [[package]]
 name = "avida-verifier"
 version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-storage-plus 1.0.1",
+ "cw20 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "schemars",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "ursa",
+]
+
+[[package]]
+name = "avida-verifier"
+version = "0.1.0"
+source = "git+https://github.com/avida-zone/cw-contracts-hackathon23?branch=adaptor#2362c90c4859578c365da6aac6c607c3e2ed4600"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
@@ -573,8 +589,9 @@ dependencies = [
 [[package]]
 name = "cw20-adapter"
 version = "1.0.0"
+source = "git+https://github.com/avida-zone/cw20-adapter#452e9463cb763a2bcbf0954584bc53bad567bbca"
 dependencies = [
- "avida-verifier",
+ "avida-verifier 0.1.0 (git+https://github.com/avida-zone/cw-contracts-hackathon23?branch=adaptor)",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-item-set",
@@ -1336,7 +1353,7 @@ dependencies = [
 name = "rg-cw20"
 version = "0.1.0"
 dependencies = [
- "avida-verifier",
+ "avida-verifier 0.1.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 1.0.1",
@@ -1769,7 +1786,7 @@ dependencies = [
 name = "vc-verifier"
 version = "0.1.0"
 dependencies = [
- "avida-verifier",
+ "avida-verifier 0.1.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 1.0.1",

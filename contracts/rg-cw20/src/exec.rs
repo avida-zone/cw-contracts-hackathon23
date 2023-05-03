@@ -2,14 +2,14 @@ use cosmwasm_std::{Addr, WasmMsg};
 
 use crate::contract::*;
 
-pub fn execute_adaptor_transfer(
+pub fn execute_adapter_transfer(
     deps: DepsMut,
     info: MessageInfo,
     sender: Addr,
     recipient: Addr,
     amount: Uint128,
 ) -> Result<Response, ContractError> {
-    if info.sender != ADAPTOR.load(deps.storage)? {
+    if info.sender != ADAPTER.load(deps.storage)? {
         Err(ContractError::Unauthorized {})
     } else {
         BALANCES.update(
@@ -26,7 +26,7 @@ pub fn execute_adaptor_transfer(
         )?;
 
         let res = Response::new()
-            .add_attribute("action", "adaptor transfer")
+            .add_attribute("action", "adapter transfer")
             .add_attribute("from", sender)
             .add_attribute("to", recipient)
             .add_attribute("amount", amount);

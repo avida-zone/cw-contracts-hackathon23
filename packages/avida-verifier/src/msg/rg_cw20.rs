@@ -8,7 +8,7 @@ use cw20::{
 
 #[cw_serde]
 pub enum ExecuteMsg {
-    AdaptorTransfer {
+    AdapterTransfer {
         sender: Addr,
         recipient: Addr,
         amount: Uint128,

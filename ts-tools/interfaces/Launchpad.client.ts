@@ -78,6 +78,7 @@ export interface LaunchpadReadOnlyInterface {
     startAfter?: string;
   }) => Promise<ArrayOfContractResponse>;
   verifier: () => Promise<Addr>;
+  adapter: () => Promise<Addr>;
 }
 export class LaunchpadQueryClient implements LaunchpadReadOnlyInterface {
   client: CosmWasmClient;
@@ -88,6 +89,7 @@ export class LaunchpadQueryClient implements LaunchpadReadOnlyInterface {
     this.contractAddress = contractAddress;
     this.registeredContracts = this.registeredContracts.bind(this);
     this.verifier = this.verifier.bind(this);
+    this.adapter = this.adapter.bind(this);
   }
 
   registeredContracts = async ({
@@ -110,6 +112,11 @@ export class LaunchpadQueryClient implements LaunchpadReadOnlyInterface {
   verifier = async (): Promise<Addr> => {
     return this.client.queryContractSmart(this.contractAddress, {
       verifier: {},
+    });
+  };
+  adapter = async (): Promise<Addr> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      adapter: {},
     });
   };
 }
@@ -178,6 +185,16 @@ export interface LaunchpadInterface extends LaunchpadReadOnlyInterface {
     memo?: string,
     funds?: Coin[]
   ) => Promise<ExecuteResult>;
+  updateAdapter: (
+    {
+      address,
+    }: {
+      address: string;
+    },
+    fee?: number | StdFee | "auto",
+    memo?: string,
+    funds?: Coin[]
+  ) => Promise<ExecuteResult>;
 }
 export class LaunchpadClient
   extends LaunchpadQueryClient
@@ -201,6 +218,7 @@ export class LaunchpadClient
     this.transform = this.transform.bind(this);
     this.revert = this.revert.bind(this);
     this.updateVerifier = this.updateVerifier.bind(this);
+    this.updateAdapter = this.updateAdapter.bind(this);
   }
 
   launch = async (
@@ -328,6 +346,29 @@ export class LaunchpadClient
       this.contractAddress,
       {
         update_verifier: {
+          address,
+        },
+      },
+      fee,
+      memo,
+      funds
+    );
+  };
+  updateAdapter = async (
+    {
+      address,
+    }: {
+      address: string;
+    },
+    fee: number | StdFee | "auto" = "auto",
+    memo?: string,
+    funds?: Coin[]
+  ): Promise<ExecuteResult> => {
+    return await this.client.execute(
+      this.sender,
+      this.contractAddress,
+      {
+        update_adapter: {
           address,
         },
       },

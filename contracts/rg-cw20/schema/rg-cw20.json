@@ -493,6 +493,35 @@
     "title": "ExecuteMsg",
     "oneOf": [
       {
+        "type": "object",
+        "required": [
+          "adapter_transfer"
+        ],
+        "properties": {
+          "adapter_transfer": {
+            "type": "object",
+            "required": [
+              "amount",
+              "recipient",
+              "sender"
+            ],
+            "properties": {
+              "amount": {
+                "$ref": "#/definitions/Uint128"
+              },
+              "recipient": {
+                "$ref": "#/definitions/Addr"
+              },
+              "sender": {
+                "$ref": "#/definitions/Addr"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
         "description": "Transfer is a base message to move tokens to another account without triggering actions",
         "type": "object",
         "required": [

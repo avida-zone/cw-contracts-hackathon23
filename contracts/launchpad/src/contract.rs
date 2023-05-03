@@ -1,10 +1,10 @@
-use crate::exec::exec_update_adaptor;
+use crate::exec::exec_update_adapter;
 pub(crate) use crate::{
     error::ContractError,
     exec::{exec_mint, exec_revert, exec_transform, exec_update_verifier, instantiate_rg_cw20},
     msg::{ContractResponse, ContractType, ExecuteMsg, InstantiateMsg, LaunchType, QueryMsg},
     state::{
-        LaunchpadOptions, ADAPTOR, DEPLOYER, PENDING_INST, RG_CONTRACTS, RG_CW_20_CODE_ID,
+        LaunchpadOptions, ADAPTER, DEPLOYER, PENDING_INST, RG_CONTRACTS, RG_CW_20_CODE_ID,
         RG_TRANSFORM,
     },
 };
@@ -17,7 +17,7 @@ pub(crate) use cosmwasm_std::{
     StdResult, SubMsg, Uint128, WasmMsg,
 };
 use cw2::set_contract_version;
-use cw20_adaptor::msg::ExecuteMsg as AdaptorMsg;
+use cw20_adapter::msg::ExecuteMsg as AdapterMsg;
 use cw_storage_plus::Bound;
 use cw_utils::parse_reply_instantiate_data;
 
@@ -62,12 +62,12 @@ pub fn execute(
             proof,
         } => exec_mint(deps, info, rg_token_addr, amount, proof),
         ExecuteMsg::UpdateVerifier { address } => exec_update_verifier(deps, info, address),
-        ExecuteMsg::UpdateAdaptor { address } => exec_update_adaptor(deps, info, address),
+        ExecuteMsg::UpdateAdapter { address } => exec_update_adapter(deps, info, address),
     }
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, ContractError> {
+pub fn reply(deps: DepsMut, _env: Env, reply: Reply) -> Result<Response, ContractError> {
     match reply.id {
         INST_REPLY_ID | TRANS_REPLY_ID => {
             let map = if reply.id == INST_REPLY_ID {
@@ -79,10 +79,10 @@ pub fn reply(deps: DepsMut, env: Env, reply: Reply) -> Result<Response, Contract
             let pending = PENDING_INST.load(deps.storage)?;
             PENDING_INST.remove(deps.storage);
             let validated_addr = deps.api.addr_validate(&result.contract_address)?;
-            map.save(deps.storage, validated_addr, &pending)?;
+            map.save(deps.storage, validated_addr.clone(), &pending)?;
             let msg = WasmMsg::Execute {
-                contract_addr: ADAPTOR.load(deps.storage)?.to_string(),
-                msg: to_binary(&AdaptorMsg::RegisterRG {
+                contract_addr: ADAPTER.load(deps.storage)?.to_string(),
+                msg: to_binary(&AdapterMsg::RegisterRG {
                     addr: validated_addr,
                 })?,
                 funds: vec![],
@@ -104,7 +104,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             contract_type,
         } => to_binary(&query_contracts(deps, start_after, limit, contract_type)?),
         QueryMsg::Verifier {} => to_binary(&query_verifier(deps)?),
-        QueryMsg::Adaptor {} => to_binary(&query_adaptor(deps)?),
+        QueryMsg::Adapter {} => to_binary(&query_adapter(deps)?),
     }
 }
 
@@ -126,8 +126,8 @@ pub fn query_verifier(deps: Deps) -> StdResult<Addr> {
     VERIFIER.load(deps.storage)
 }
 
-pub fn query_adaptor(deps: Deps) -> StdResult<Addr> {
-    ADAPTOR.load(deps.storage)
+pub fn query_adapter(deps: Deps) -> StdResult<Addr> {
+    ADAPTER.load(deps.storage)
 }
 
 pub const DEFAULT_LIMIT: u64 = 20;
