@@ -59,6 +59,8 @@ dependencies = [
  "avida-verifier",
  "cosmwasm-std",
  "cw-multi-test",
+ "cw20 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "launchpad",
  "rg-cw20",
  "serde",
  "serde_json",
@@ -79,25 +81,6 @@ dependencies = [
  "cw-utils",
  "cw2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "cw20 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "schemars",
- "semver",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "avida-launchpad"
-version = "0.1.0"
-dependencies = [
- "avida-verifier",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-controllers",
- "cw-storage-plus",
- "cw-utils",
- "cw2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "cw20 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "rg-cw20",
  "schemars",
  "semver",
  "serde",
@@ -859,6 +842,25 @@ name = "konst_proc_macros"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4e28ab1dc35e09d60c2b8c90d12a9a8d9666c876c10a3739a3196db0103b6043"
+
+[[package]]
+name = "launchpad"
+version = "0.1.0"
+dependencies = [
+ "avida-verifier",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-controllers",
+ "cw-storage-plus",
+ "cw-utils",
+ "cw2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cw20 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rg-cw20",
+ "schemars",
+ "semver",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "lazy_static"
