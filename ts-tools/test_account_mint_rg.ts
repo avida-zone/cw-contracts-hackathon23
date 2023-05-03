@@ -65,8 +65,8 @@ import { ProxyT } from "@vectis/types";
 
   let mint_msg: LaunchPadMsg = {
     mint: {
-      // 3 inj each from the price
-      amount: "11",
+      // 100000000000000000 inj each from the price
+      amount: "3",
       proof,
       rg_token_addr: rg1_new_addr.default,
     },
@@ -76,7 +76,7 @@ import { ProxyT } from "@vectis/types";
     wasm: {
       execute: {
         contract_addr: launchpad,
-        funds: [{ denom: "inj", amount: "33" }],
+        funds: [{ denom: "inj", amount: "300000000000000000" }],
         msg: toCosmosMsg(mint_msg),
       },
     },
@@ -86,7 +86,7 @@ import { ProxyT } from "@vectis/types";
     contractAddress: wallet,
     sender: user.address,
     msg: { execute: { msgs: [proxy_msg] } },
-    funds: { denom: "inj", amount: "33" },
+    funds: { denom: "inj", amount: "300000000000000000" },
   });
 
   let res = await client.broadcast({
