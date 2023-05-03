@@ -48,70 +48,70 @@ interface CodeIds {
     simulateTx: true,
   });
 
-  ///// ========================================
-  ////
-  ////  Instntiate launchpad
-  ////
-  ////  ========================================
-  //let msg = MsgInstantiateContract.fromJSON({
-  //  sender: admin.address,
-  //  codeId: avidaLaunchpadCodeId,
-  //  label: "AVIPAD",
-  //  admin: admin.address,
-  //  msg: { rg_cw20_code_id: rgCw20CodeId },
-  //});
+  /// ========================================
+  //
+  //  Instntiate launchpad
+  //
+  //  ========================================
+  let msg = MsgInstantiateContract.fromJSON({
+    sender: admin.address,
+    codeId: avidaLaunchpadCodeId,
+    label: "AVIPAD",
+    admin: admin.address,
+    msg: { rg_cw20_code_id: rgCw20CodeId },
+  });
 
-  //let txResponse = await adminClient.broadcast({
-  //  msgs: msg,
-  //  injectiveAddress: admin.address,
-  //});
+  let txResponse = await adminClient.broadcast({
+    msgs: msg,
+    injectiveAddress: admin.address,
+  });
 
-  //const launchpadAddr = extractValueFromEvent(
-  //  txResponse.rawLog,
-  //  "cosmwasm.wasm.v1.EventContractInstantiated",
-  //  "contract_address"
-  //);
-  //console.log("1. Instantiated launchpad Addr: ", launchpadAddr);
+  const launchpadAddr = extractValueFromEvent(
+    txResponse.rawLog,
+    "cosmwasm.wasm.v1.EventContractInstantiated",
+    "contract_address"
+  );
+  console.log("1. Instantiated launchpad Addr: ", launchpadAddr);
 
-  ///// ========================================
-  ////
-  ////  Instntiate vc-verifier
-  ////
-  ////  ========================================
-  ////  dev:
-  ////  These are static for vc verifier
-  //let vcVerifierInsMsg: VcVerifierInstMsg = {
-  //  vectis_sub_proof_request: getSubProofReq(
-  //    "./registry_info/wallet_sub_proof_request.json"
-  //  ),
-  //  vectis_cred_schema: getCredentialSchema(
-  //    "./registry_info/wallet_credential_schema.json"
-  //  ),
-  //  vectis_non_cred_schema: getNonCredentialSchema(
-  //    "./registry_info/wallet_non_credential_schema.json"
-  //  ),
-  //  launchpad: launchpadAddr,
-  //};
+  /// ========================================
+  //
+  //  Instntiate vc-verifier
+  //
+  //  ========================================
+  //  dev:
+  //  These are static for vc verifier
+  let vcVerifierInsMsg: VcVerifierInstMsg = {
+    vectis_sub_proof_request: getSubProofReq(
+      "./registry_info/wallet_sub_proof_request.json"
+    ),
+    vectis_cred_schema: getCredentialSchema(
+      "./registry_info/wallet_credential_schema.json"
+    ),
+    vectis_non_cred_schema: getNonCredentialSchema(
+      "./registry_info/wallet_non_credential_schema.json"
+    ),
+    launchpad: launchpadAddr,
+  };
 
-  //let verifierMsg = MsgInstantiateContract.fromJSON({
-  //  sender: admin.address,
-  //  codeId: vcVerifierCodeId,
-  //  label: "AVIDA VC Verifier",
-  //  admin: admin.address,
-  //  msg: vcVerifierInsMsg,
-  //});
+  let verifierMsg = MsgInstantiateContract.fromJSON({
+    sender: admin.address,
+    codeId: vcVerifierCodeId,
+    label: "AVIDA VC Verifier",
+    admin: admin.address,
+    msg: vcVerifierInsMsg,
+  });
 
-  //txResponse = await adminClient.broadcast({
-  //  msgs: verifierMsg,
-  //  injectiveAddress: admin.address,
-  //});
+  txResponse = await adminClient.broadcast({
+    msgs: verifierMsg,
+    injectiveAddress: admin.address,
+  });
 
-  //const vcVerifierAddr = extractValueFromEvent(
-  //  txResponse.rawLog,
-  //  "cosmwasm.wasm.v1.EventContractInstantiated",
-  //  "contract_address"
-  //);
-  //console.log("2. Instantiated VcVerifier Addr: ", vcVerifierAddr);
+  const vcVerifierAddr = extractValueFromEvent(
+    txResponse.rawLog,
+    "cosmwasm.wasm.v1.EventContractInstantiated",
+    "contract_address"
+  );
+  console.log("2. Instantiated VcVerifier Addr: ", vcVerifierAddr);
 
   // =========================================
   //
@@ -119,7 +119,8 @@ interface CodeIds {
   //
   // =========================================
   //
-  let launchpadAddr = "inj1c2fgmvfheym9h9q6tv236eljp30q40x9sde3ye";
+  // let launchpadAddr = "inj1c2fgmvfheym9h9q6tv236eljp30q40x9sde3ye";
+  // let vcVerifierAddr = "inj1zpjyyq4nej4xclk8cc7ww36h8qn3760xvasszk";
   let adapterInstMsg: AdapterInstMsg = {
     launchpad: launchpadAddr,
   };
@@ -132,7 +133,7 @@ interface CodeIds {
     msg: adapterInstMsg,
   });
 
-  let txResponse = await adminClient.broadcast({
+  txResponse = await adminClient.broadcast({
     msgs: adapterMsg,
     injectiveAddress: admin.address,
   });

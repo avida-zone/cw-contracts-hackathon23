@@ -66,8 +66,8 @@ import { ProxyT } from "@vectis/types";
     wasm: {
       execute: {
         contract_addr: launchpad,
-        // this means we should get 33 of the balance of rgINJ
-        funds: [{ denom: "inj", amount: "33" }],
+        // this means we should get 1INJ of the balance of rgINJ
+        funds: [{ denom: "inj", amount: "2000000000000000000" }],
         msg: toCosmosMsg(transform_msg),
       },
     },
@@ -77,7 +77,7 @@ import { ProxyT } from "@vectis/types";
     contractAddress: wallet,
     sender: user.address,
     msg: { execute: { msgs: [proxy_msg] } },
-    funds: { denom: "inj", amount: "33" },
+    funds: { denom: "inj", amount: "2000000000000000000" },
   });
 
   let res = await client.broadcast({

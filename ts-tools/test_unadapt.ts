@@ -15,7 +15,10 @@ import {
 import { ProxyT } from "@vectis/types";
 
 import { ExecuteMsg as RgCw20ExecMsg } from "./interfaces/RgCw20.types";
-import { ExecuteMsg as AdapterExecMsg } from "./interfaces/Cw20Adapter.types";
+import {
+  Coin,
+  ExecuteMsg as AdapterExecMsg,
+} from "./interfaces/Cw20Adapter.types";
 
 (async function adapt_tf() {
   // Template
@@ -44,6 +47,14 @@ import { ExecuteMsg as AdapterExecMsg } from "./interfaces/Cw20Adapter.types";
   const current_native_balances = await qs.queryBalances(wallet);
   console.log("current balance: ", current_native_balances);
 
+  let tfdenom = "";
+  for (let tf of current_native_balances.balances) {
+    if (tf.denom != "inj") {
+      tfdenom = tf.denom;
+    }
+  }
+  console.log("tfdenom:", tfdenom);
+
   const current_rg_balances = await qs.queryWasm(
     rg1_transform_address.default,
     {
@@ -53,56 +64,48 @@ import { ExecuteMsg as AdapterExecMsg } from "./interfaces/Cw20Adapter.types";
   console.log("current native balance: ", current_native_balances);
   console.log("current rg balance: ", current_rg_balances);
 
-  // ======================================
-  //
-  // Do Adapt
-  //
-  // ======================================
-  //
-
-  // First create the send message on rg20 for the adapter
   let nonce: string = await qs.queryWasm(rg1_transform_address.default, {
     proof_nonce: { address: wallet },
   });
-  console.log("proof nonce for adapt: ", nonce);
+  console.log("proof nonce for unadapt: ", nonce);
   let proof = await generateProof(user.address, wallet, nonce);
-  let rg_cw20_send_msg: RgCw20ExecMsg = {
-    send: {
-      amount: "1000",
-      contract: adapter,
-      // msg is ignored by the cw20-adapter
-      msg: "",
-      proof,
-    },
+
+  // create the redeem message
+  const user_to_adapter: AdapterExecMsg = {
+    // default send to itself
+    redeem_and_transfer: {},
   };
 
   let proxy_msg: ProxyT.CosmosMsgForEmpty = {
     wasm: {
       execute: {
-        contract_addr: rg1_transform_address.default,
-        funds: [],
-        msg: toCosmosMsg(rg_cw20_send_msg),
+        contract_addr: adapter,
+        funds: [{ denom: tfdenom, amount: "500" }],
+        msg: toCosmosMsg(user_to_adapter),
       },
     },
   };
 
-  let adapt = MsgExecuteContract.fromJSON({
+  // We do not need to send funds here because the wallet has the funds
+  let mint = MsgExecuteContract.fromJSON({
     contractAddress: wallet,
     sender: user.address,
     msg: { execute: { msgs: [proxy_msg] } },
   });
 
   let res = await client.broadcast({
-    msgs: adapt,
+    msgs: mint,
     injectiveAddress: user.address,
   });
+  const unadapt_native_balances = await qs.queryBalances(wallet);
+  console.log("current balance: ", unadapt_native_balances);
 
-  console.log("adapt msg ", res);
-
-  const after_native_balances = await qs.queryBalances(wallet);
-  const after_rg_balances = await qs.queryWasm(rg1_transform_address.default, {
-    balance: { address: wallet },
-  });
-  console.log("after native balance: ", after_native_balances);
-  console.log("after rg balance: ", after_rg_balances);
+  const unadapt_rg_balances = await qs.queryWasm(
+    rg1_transform_address.default,
+    {
+      balance: { address: wallet },
+    }
+  );
+  console.log("unadapt native balance: ", unadapt_native_balances);
+  console.log("unadapt rg balance: ", unadapt_rg_balances);
 })();

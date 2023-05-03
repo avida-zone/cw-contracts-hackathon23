@@ -12,6 +12,7 @@
     "test-transform-inj": "ts-node ./test_account_transform.ts",
     "test-revert-rginj": "ts-node ./test_revert_transform.ts",
     "test-adapt": "ts-node ./test_adapt.ts",
+    "test-unadapt": "ts-node ./test_unadapt.ts",
     "types:generate": "ts-node generatetypes.ts && npm run prettier",
     "prettier": "prettier --write \"**/*.{js,ts}\""
   },

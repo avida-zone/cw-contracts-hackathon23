@@ -1,10 +1,12 @@
-use crate::exec::exec_update_adapter;
 pub(crate) use crate::{
     error::ContractError,
-    exec::{exec_mint, exec_revert, exec_transform, exec_update_verifier, instantiate_rg_cw20},
+    exec::{
+        exec_mint, exec_revert, exec_transform, exec_update_adapter, exec_update_fee,
+        exec_update_verifier, instantiate_rg_cw20,
+    },
     msg::{ContractResponse, ContractType, ExecuteMsg, InstantiateMsg, LaunchType, QueryMsg},
     state::{
-        LaunchpadOptions, ADAPTER, DEPLOYER, PENDING_INST, RG_CONTRACTS, RG_CW_20_CODE_ID,
+        LaunchpadOptions, ADAPTER, DEPLOYER, FEE, PENDING_INST, RG_CONTRACTS, RG_CW_20_CODE_ID,
         RG_TRANSFORM,
     },
 };
@@ -13,7 +15,7 @@ use avida_verifier::state::launchpad::VERIFIER;
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 pub(crate) use cosmwasm_std::{
-    to_binary, Addr, Binary, Deps, DepsMut, Env, Event, MessageInfo, Order, Reply, Response,
+    to_binary, Addr, Binary, Coin, Deps, DepsMut, Env, Event, MessageInfo, Order, Reply, Response,
     StdResult, SubMsg, Uint128, WasmMsg,
 };
 use cw2::set_contract_version;
@@ -26,6 +28,8 @@ const CONTRACT_NAME: &str = env!("CARGO_PKG_NAME");
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const INST_REPLY_ID: u64 = u64::MIN;
 pub const TRANS_REPLY_ID: u64 = u64::MIN + 1;
+// There is not additional fee at this time, only that required for creating denom
+pub const DEFAULT_FEE: u128 = 10000000000000000000;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -35,6 +39,7 @@ pub fn instantiate(
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+    FEE.save(deps.storage, &Uint128::from(DEFAULT_FEE))?;
     factory_instantiate(deps, env, info, msg)
 }
 
@@ -63,6 +68,7 @@ pub fn execute(
         } => exec_mint(deps, info, rg_token_addr, amount, proof),
         ExecuteMsg::UpdateVerifier { address } => exec_update_verifier(deps, info, address),
         ExecuteMsg::UpdateAdapter { address } => exec_update_adapter(deps, info, address),
+        ExecuteMsg::UpdateFee { fee } => exec_update_fee(deps, info, fee),
     }
 }
 
@@ -85,7 +91,10 @@ pub fn reply(deps: DepsMut, _env: Env, reply: Reply) -> Result<Response, Contrac
                 msg: to_binary(&AdapterMsg::RegisterRG {
                     addr: validated_addr,
                 })?,
-                funds: vec![],
+                funds: vec![Coin {
+                    denom: "inj".to_string(),
+                    amount: FEE.load(deps.storage)?,
+                }],
             };
             let event = Event::new("Avida.Launchpad.v1.MsgTokenContractInstantiated")
                 .add_attribute("contract_address", result.contract_address);
