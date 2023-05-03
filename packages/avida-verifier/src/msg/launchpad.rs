@@ -43,6 +43,10 @@ pub enum ExecuteMsg {
         /// The address of the verifier
         address: String,
     },
+    UpdateAdaptor {
+        /// The address of the TG Adaptor
+        address: String,
+    },
 }
 
 #[cw_serde]
@@ -56,6 +60,8 @@ pub enum QueryMsg {
     },
     #[returns(Addr)]
     Verifier {},
+    #[returns(Addr)]
+    Adaptor {},
 }
 
 #[cw_serde]

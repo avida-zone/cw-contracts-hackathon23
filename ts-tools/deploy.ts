@@ -22,6 +22,7 @@ interface CodeIds {
   rgCw20CodeId: number;
   vcVerifierCodeId: number;
   avidaLaunchpadCodeId: number;
+  adaptorCodeId: number;
 }
 
 (async function deploy() {
@@ -36,6 +37,7 @@ interface CodeIds {
     rgCw20CodeId,
     vcVerifierCodeId,
     avidaIdentityPluginCodeId,
+    adaptorCodeId,
   } = (await import("./deploy/injective-testnet-uploadInfo.json")) as CodeIds;
 
   const adminClient = new MsgBroadcasterWithPk({

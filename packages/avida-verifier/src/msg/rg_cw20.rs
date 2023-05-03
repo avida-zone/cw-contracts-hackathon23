@@ -8,6 +8,11 @@ use cw20::{
 
 #[cw_serde]
 pub enum ExecuteMsg {
+    AdaptorTransfer {
+        sender: Addr,
+        recipient: Addr,
+        amount: Uint128,
+    },
     /// Transfer is a base message to move tokens to another account without triggering actions
     Transfer {
         recipient: String,

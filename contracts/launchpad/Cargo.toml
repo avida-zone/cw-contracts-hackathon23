@@ -26,3 +26,5 @@ serde = { workspace = true }
 thiserror = { workspace = true }
 avida-verifier = { path = "../../packages/avida-verifier" }
 rg-cw20 = { path = "../rg-cw20" }
+cw20-adapter = { git = "https://github.com/avida-zone/cw20-adapter" }
+# cw20-adapter = { path = "../../../cw20-adapter/contracts/cw20-adapter" }

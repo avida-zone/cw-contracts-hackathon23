@@ -2,6 +2,38 @@ use cosmwasm_std::{Addr, WasmMsg};
 
 use crate::contract::*;
 
+pub fn execute_adaptor_transfer(
+    deps: DepsMut,
+    info: MessageInfo,
+    sender: Addr,
+    recipient: Addr,
+    amount: Uint128,
+) -> Result<Response, ContractError> {
+    if info.sender != ADAPTOR.load(deps.storage)? {
+        Err(ContractError::Unauthorized {})
+    } else {
+        BALANCES.update(
+            deps.storage,
+            &sender,
+            |balance: Option<Uint128>| -> StdResult<_> {
+                Ok(balance.unwrap_or_default().checked_sub(amount)?)
+            },
+        )?;
+        BALANCES.update(
+            deps.storage,
+            &recipient,
+            |balance: Option<Uint128>| -> StdResult<_> { Ok(balance.unwrap_or_default() + amount) },
+        )?;
+
+        let res = Response::new()
+            .add_attribute("action", "adaptor transfer")
+            .add_attribute("from", sender)
+            .add_attribute("to", recipient)
+            .add_attribute("amount", amount);
+        Ok(res)
+    }
+}
+
 pub fn execute_transfer(
     deps: DepsMut,
     _env: Env,
@@ -65,7 +97,7 @@ pub fn execute_burn(
         .add_attribute("from", info.sender.clone())
         .add_attribute("amount", amount);
 
-    // If this was a transformed, we tell the Launchpad to send back the non-rgToken
+    // If this was a transformed, we tell the Launchpad to send back the non-rgToken to the user
     let launchpad = LAUNCHPAD.load(deps.storage)?;
     if RG_TRANSFORM
         .query(&deps.querier, launchpad.clone(), env.contract.address)?

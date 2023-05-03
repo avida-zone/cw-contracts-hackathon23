@@ -8,6 +8,8 @@ pub const VERIFIER: Item<Addr> = Item::new("verifier");
 pub const RG_CONTRACTS: Map<Addr, LaunchpadOptions> = Map::new("deployed-rg-token");
 /// The contracts deployed by the launchpad for transforming native tokens to rg tokens
 pub const RG_TRANSFORM: Map<Addr, LaunchpadOptions> = Map::new("transformed-rg-token");
+/// The adaptor for transforming into Native token
+pub const ADAPTOR: Item<Addr> = Item::new("adaptor");
 
 #[cw_serde]
 pub struct LaunchpadOptions {

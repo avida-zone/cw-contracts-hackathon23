@@ -6,7 +6,7 @@ use avida_verifier::{
 use cosmwasm_std::{BankMsg, Coin};
 
 use crate::contract::*;
-use crate::state::VERIFIER;
+use crate::state::{ADAPTOR, VERIFIER};
 
 pub fn instantiate_rg_cw20(
     deps: DepsMut,
@@ -68,6 +68,21 @@ pub fn exec_update_verifier(
     } else {
         VERIFIER.save(deps.storage, &validated_addr)?;
         Ok(Response::new().add_attribute("Verifier updated", validated_addr))
+    }
+}
+
+pub fn exec_update_adaptor(
+    deps: DepsMut,
+    info: MessageInfo,
+    address: String,
+) -> Result<Response, ContractError> {
+    let validated_addr = deps.api.addr_validate(&address)?;
+    let deployer = ADAPTOR.load(deps.storage)?;
+    if info.sender != deps.api.addr_humanize(&deployer)? {
+        Err(ContractError::Unauthorised)
+    } else {
+        VERIFIER.save(deps.storage, &validated_addr)?;
+        Ok(Response::new().add_attribute("ADAPTOR updated", validated_addr))
     }
 }
 
