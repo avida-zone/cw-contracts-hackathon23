@@ -25,6 +25,10 @@ import {
   MintOptions,
   ExecuteMsg as LaunchExecMsg,
 } from "./interfaces/Launchpad.types";
+import {
+  QueryMsg as AdapterQueryMsg,
+  Coin,
+} from "./interfaces/Cw20Adapter.types";
 
 (async function create_rg_tokens() {
   // Template
@@ -39,7 +43,7 @@ import {
   });
   const qs = new QueryService(network, endpoints);
 
-  const { launchpad } = (await import(
+  const { launchpad, adapter } = (await import(
     "./deploy/injective-testnet-deployInfo.json"
   )) as ContractsInterface;
 
@@ -53,6 +57,10 @@ import {
   }
   console.log("Subproofreq params", parsed_params);
 
+  let query: AdapterQueryMsg = { new_denom_fee: {} };
+  let factoryFee = (await qs.queryWasm(adapter, query)) as Coin[];
+  console.log(factoryFee);
+
   // ==========================
   //
   // User deploys a NEW token, not a transform from token => rg-token
@@ -61,25 +69,22 @@ import {
   //
   // Defines the mint option,
   // i.e. for anyone who has the credential from all 3 (not always 3, depends on user pick)
-  // will be able to mint, if they pay 3inj
-  // Remember the cap  takes in decimal for display purpose
+  // will be able to mint, if they pay 1e17 inj
+  // The cap  takes in decimal
   let mint_option: MintOptions = {
-    cap: "1000000",
-    price: [{ denom: "inj", amount: "3" }],
+    cap: "1000000000000",
+    price: [{ denom: "inj", amount: "100000000000000000" }],
   };
 
   // This is new because it is a brand new token, not a transformed one, i.e. must be mint option
   let launchtype_new: LaunchType = { new: mint_option };
-  let launchtype_transform: LaunchType = {
-    transform: "inj",
-  };
 
   // Then we can now define the actual rg_cw20 instant message
   let rg20_instant_msg: RgInstMsg = {
-    decimals: 3,
+    decimals: 6,
     initial_balances: [],
     marketing: null,
-    mint: { cap: "1000000", minter: launchpad },
+    mint: { cap: "1000000000000", minter: launchpad },
     name: "RG Token 1",
     req_params: parsed_params,
     symbol: "rgHKT",
@@ -98,6 +103,7 @@ import {
     contractAddress: launchpad,
     sender: user.address,
     msg: launchMsg_new,
+    funds: factoryFee,
   });
 
   let txResponse_new = await client.broadcast({
@@ -107,13 +113,20 @@ import {
 
   // NOW this is the transform
   let rg20_instant_msg_transform: RgInstMsg = {
-    decimals: 3,
+    // to match inj
+    decimals: 18,
     initial_balances: [],
     marketing: null,
-    mint: { cap: "1000000", minter: launchpad },
+    // this cap is ignored by the contract
+    // as long as there are the right denom, it will be minted
+    mint: { cap: "100", minter: launchpad },
     name: "RG-INJ",
     req_params: parsed_params,
     symbol: "rgINJ",
+  };
+
+  let launchtype_transform: LaunchType = {
+    transform: "inj",
   };
 
   let launchMsg_transform: LaunchExecMsg = {
@@ -128,6 +141,7 @@ import {
     contractAddress: launchpad,
     sender: user.address,
     msg: launchMsg_transform,
+    funds: factoryFee,
   });
 
   let txResponse_transform = await client.broadcast({
@@ -175,8 +189,6 @@ import {
 
   const rgContractsTransform = await qs.queryWasm(launchpad, {
     registered_contracts: { contract_type: "transform" },
-    // for transform do
-    // registered_contracts: { contract_type: "transform" },
   });
   console.log("TRANSFORM Rg20 on Launchpad: ", rgContractsTransform);
 })();
