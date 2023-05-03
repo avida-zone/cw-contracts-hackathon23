@@ -12,6 +12,7 @@ export interface InstantiateMsg {
   name: string;
   req_params: WSubProofReqParams[];
   symbol: string;
+  trusted_issuers: string[];
 }
 export type ExecuteMsg =
   | {
@@ -48,6 +49,16 @@ export type ExecuteMsg =
   | {
       update_adapter: {
         address: string;
+      };
+    }
+  | {
+      update_fee: {
+        fee: Uint128;
+      };
+    }
+  | {
+      update_rg_token_code_id: {
+        id: number;
       };
     };
 export type LaunchType =

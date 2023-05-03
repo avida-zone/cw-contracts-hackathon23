@@ -20,7 +20,6 @@ pub(crate) use cw20::{
     MarketingInfoResponse,
 };
 
-use crate::state::PENDING_VERIFICATION;
 pub(crate) use crate::{
     enumerable::query_all_accounts,
     error::ContractError,
@@ -29,8 +28,8 @@ pub(crate) use crate::{
     msg::{ExecuteMsg, InstantiateMsg, QueryMsg},
     query::*,
     state::{
-        TokenInfo, BALANCES, LAUNCHPAD, LOGO, MARKETING_INFO, SUB_PROOF_REQ_PARAMS, TOKEN_INFO,
-        VC_NONCE,
+        TokenInfo, BALANCES, LAUNCHPAD, LOGO, MARKETING_INFO, PENDING_VERIFICATION,
+        SUB_PROOF_REQ_PARAMS, TOKEN_INFO, TRUSTED_ISSUERS, VC_NONCE,
     },
     util::*,
     verify_vc_proof::verify_vc_proof,
@@ -75,6 +74,7 @@ pub fn instantiate(
         })
         .collect::<Result<Vec<SubProofReqParams>, _>>()?;
     SUB_PROOF_REQ_PARAMS.save(deps.storage, &params)?;
+    TRUSTED_ISSUERS.save(deps.storage, &msg.trusted_issuers)?;
 
     // store token info
     let data = TokenInfo {
@@ -151,6 +151,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         }
         QueryMsg::MarketingInfo {} => to_binary(&query_marketing_info(deps)?),
         QueryMsg::DownloadLogo {} => to_binary(&query_download_logo(deps)?),
+        QueryMsg::TrustedIssuers {} => to_binary(&query_trusted_issers(deps)?),
     }
 }
 

@@ -18,6 +18,7 @@ import {
 import {
   RgMinterData,
   InstantiateMsg as RgInstMsg,
+  QueryMsg as RgQueryMsg,
 } from "./interfaces/RgCw20.types";
 import {
   WSubProofReqParams,
@@ -87,6 +88,7 @@ import {
     mint: { cap: "1000000000000", minter: launchpad },
     name: "RG Token 1",
     req_params: parsed_params,
+    trusted_issuers: ["infocert", "gayadeed", "identrust"],
     symbol: "rgHKT",
   };
 
@@ -138,58 +140,63 @@ import {
   // NOW this is the transform
   //
   // =====================================
-  //let rg20_instant_msg_transform: RgInstMsg = {
-  //  // to match inj
-  //  decimals: 18,
-  //  initial_balances: [],
-  //  marketing: null,
-  //  // this cap is ignored by the contract
-  //  // as long as there are the right denom, it will be minted
-  //  mint: { cap: "100", minter: launchpad },
-  //  name: "RG-INJ",
-  //  req_params: parsed_params,
-  //  symbol: "rgINJ",
-  //};
+  let rg20_instant_msg_transform: RgInstMsg = {
+    // to match inj
+    decimals: 18,
+    initial_balances: [],
+    marketing: null,
+    // this cap is ignored by the contract
+    // as long as there are the right denom, it will be minted
+    mint: { cap: "100", minter: launchpad },
+    name: "RG-INJ",
+    req_params: parsed_params,
+    trusted_issuers: ["infocert", "gayadeed", "identrust"],
+    symbol: "rgINJ",
+  };
 
-  //let launchtype_transform: LaunchType = {
-  //  transform: "inj",
-  //};
+  let launchtype_transform: LaunchType = {
+    transform: "inj",
+  };
 
-  //let launchMsg_transform: LaunchExecMsg = {
-  //  launch: {
-  //    label: "RG-INJ",
-  //    launch_type: launchtype_transform,
-  //    msg: rg20_instant_msg_transform,
-  //  },
-  //};
+  let launchMsg_transform: LaunchExecMsg = {
+    launch: {
+      label: "RG-INJ",
+      launch_type: launchtype_transform,
+      msg: rg20_instant_msg_transform,
+    },
+  };
 
-  //let executeMsg_transform = MsgExecuteContract.fromJSON({
-  //  contractAddress: launchpad,
-  //  sender: user.address,
-  //  msg: launchMsg_transform,
-  //  funds: factoryFee,
-  //});
+  let executeMsg_transform = MsgExecuteContract.fromJSON({
+    contractAddress: launchpad,
+    sender: user.address,
+    msg: launchMsg_transform,
+    funds: factoryFee,
+  });
 
-  //let txResponse_transform = await client.broadcast({
-  //  msgs: executeMsg_transform,
-  //  injectiveAddress: user.address,
-  //});
+  let txResponse_transform = await client.broadcast({
+    msgs: executeMsg_transform,
+    injectiveAddress: user.address,
+  });
 
-  //console.log("txResponse TRANSFORM:", JSON.stringify(txResponse_transform));
+  console.log("txResponse TRANSFORM:", JSON.stringify(txResponse_transform));
 
-  //const rg1_transform_address = extractValueFromEvent(
-  //  txResponse_transform.rawLog,
-  //  "cosmwasm.wasm.v1.EventContractInstantiated",
-  //  "contract_address"
-  //);
+  const rg1_transform_address = extractValueFromEvent(
+    txResponse_transform.rawLog,
+    "cosmwasm.wasm.v1.EventContractInstantiated",
+    "contract_address"
+  );
 
-  //writeToFile(
-  //  "./deploy/rg1_transform_address.json",
-  //  JSON.stringify(rg1_transform_address, null, 2)
-  //);
+  writeToFile(
+    "./deploy/rg1_transform_address.json",
+    JSON.stringify(rg1_transform_address, null, 2)
+  );
 
-  //const rgContractsTransform = await qs.queryWasm(launchpad, {
-  //  registered_contracts: { contract_type: "transform" },
-  //});
-  //console.log("TRANSFORM Rg20 on Launchpad: ", rgContractsTransform);
+  const rgContractsTransform = await qs.queryWasm(launchpad, {
+    registered_contracts: { contract_type: "transform" },
+  });
+  console.log("TRANSFORM Rg20 on Launchpad: ", rgContractsTransform);
+
+  let query_msg: RgQueryMsg = { trusted_issuers: {} };
+  const trusted_issuers = await qs.queryWasm(rg1_transform_address, query_msg);
+  console.log("trusted issuers: ", trusted_issuers);
 })();

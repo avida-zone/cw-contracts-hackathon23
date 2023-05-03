@@ -45,6 +45,7 @@ export interface InstantiateMsg {
   name: string;
   req_params: WSubProofReqParams[];
   symbol: string;
+  trusted_issuers: string[];
 }
 export interface Cw20Coin {
   address: string;
@@ -244,6 +245,9 @@ export type QueryMsg =
     }
   | {
       download_logo: {};
+    }
+  | {
+      trusted_issuers: {};
     };
 export interface AllAccountsResponse {
   accounts: string[];
@@ -276,3 +280,4 @@ export interface TokenInfoResponse {
   total_supply: Uint128;
   verifier: string;
 }
+export type ArrayOfString = string[];

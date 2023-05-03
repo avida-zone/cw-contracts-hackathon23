@@ -207,6 +207,56 @@
           }
         },
         "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "required": [
+          "update_fee"
+        ],
+        "properties": {
+          "update_fee": {
+            "type": "object",
+            "required": [
+              "fee"
+            ],
+            "properties": {
+              "fee": {
+                "description": "The address of the TG Adapter",
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/Uint128"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "required": [
+          "update_rg_token_code_id"
+        ],
+        "properties": {
+          "update_rg_token_code_id": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "description": "The address of the TG Adapter",
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
       }
     ],
     "definitions": {
@@ -324,7 +374,8 @@
           "initial_balances",
           "name",
           "req_params",
-          "symbol"
+          "symbol",
+          "trusted_issuers"
         ],
         "properties": {
           "decimals": {
@@ -369,6 +420,12 @@
           },
           "symbol": {
             "type": "string"
+          },
+          "trusted_issuers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "additionalProperties": false

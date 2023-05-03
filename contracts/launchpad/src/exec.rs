@@ -109,6 +109,20 @@ pub fn exec_update_adapter(
     }
 }
 
+pub fn exec_update_code_id(
+    deps: DepsMut,
+    info: MessageInfo,
+    id: u64,
+) -> Result<Response, ContractError> {
+    let deployer = DEPLOYER.load(deps.storage)?;
+    if info.sender != deps.api.addr_humanize(&deployer)? {
+        Err(ContractError::Unauthorised)
+    } else {
+        RG_CW_20_CODE_ID.save(deps.storage, &id)?;
+        Ok(Response::new().add_attribute("Code Id updated", id.to_string()))
+    }
+}
+
 pub fn exec_mint(
     deps: DepsMut,
     info: MessageInfo,

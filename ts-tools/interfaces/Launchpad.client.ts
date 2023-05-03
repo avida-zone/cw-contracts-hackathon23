@@ -195,6 +195,26 @@ export interface LaunchpadInterface extends LaunchpadReadOnlyInterface {
     memo?: string,
     funds?: Coin[]
   ) => Promise<ExecuteResult>;
+  updateFee: (
+    {
+      fee,
+    }: {
+      fee: Uint128;
+    },
+    fee?: number | StdFee | "auto",
+    memo?: string,
+    funds?: Coin[]
+  ) => Promise<ExecuteResult>;
+  updateRgTokenCodeId: (
+    {
+      id,
+    }: {
+      id: number;
+    },
+    fee?: number | StdFee | "auto",
+    memo?: string,
+    funds?: Coin[]
+  ) => Promise<ExecuteResult>;
 }
 export class LaunchpadClient
   extends LaunchpadQueryClient
@@ -219,6 +239,8 @@ export class LaunchpadClient
     this.revert = this.revert.bind(this);
     this.updateVerifier = this.updateVerifier.bind(this);
     this.updateAdapter = this.updateAdapter.bind(this);
+    this.updateFee = this.updateFee.bind(this);
+    this.updateRgTokenCodeId = this.updateRgTokenCodeId.bind(this);
   }
 
   launch = async (
@@ -370,6 +392,52 @@ export class LaunchpadClient
       {
         update_adapter: {
           address,
+        },
+      },
+      fee,
+      memo,
+      funds
+    );
+  };
+  updateFee = async (
+    {
+      fee,
+    }: {
+      fee: Uint128;
+    },
+    fee: number | StdFee | "auto" = "auto",
+    memo?: string,
+    funds?: Coin[]
+  ): Promise<ExecuteResult> => {
+    return await this.client.execute(
+      this.sender,
+      this.contractAddress,
+      {
+        update_fee: {
+          fee,
+        },
+      },
+      fee,
+      memo,
+      funds
+    );
+  };
+  updateRgTokenCodeId = async (
+    {
+      id,
+    }: {
+      id: number;
+    },
+    fee: number | StdFee | "auto" = "auto",
+    memo?: string,
+    funds?: Coin[]
+  ): Promise<ExecuteResult> => {
+    return await this.client.execute(
+      this.sender,
+      this.contractAddress,
+      {
+        update_rg_token_code_id: {
+          id,
         },
       },
       fee,

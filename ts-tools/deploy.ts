@@ -36,7 +36,6 @@ interface CodeIds {
     avidaLaunchpadCodeId,
     rgCw20CodeId,
     vcVerifierCodeId,
-    avidaIdentityPluginCodeId,
     adapterCodeId,
   } = (await import("./deploy/injective-testnet-uploadInfo.json")) as CodeIds;
 

@@ -75,7 +75,12 @@ pub struct InstantiateMsg {
     pub initial_balances: Vec<Cw20Coin>,
     pub mint: Option<RgMinterData>,
     pub marketing: Option<InstantiateMarketingInfo>,
+    // These are the attributes, predicates  required  for the proof to be verified
+    // it is deteremined by the launch of the contract
     pub req_params: Vec<WSubProofReqParams>,
+    // These are the trusted issuers who are recognised by this contract who can issue the
+    // above defined credentials
+    pub trusted_issuers: Vec<String>,
 }
 
 impl InstantiateMsg {
@@ -133,35 +138,23 @@ pub enum QueryMsg {
     /// Returns the nonce for the next proof for this account owner
     #[returns(u64)]
     ProofNonce { address: String },
-    /// Returns metadata on the contract - name, decimals, supply, etc.
+    /// Returns metadata on the contract - name, decimals, supply, verifier.
     /// Return type: TokenInfoResponse.
     #[returns(TokenInfoResponse)]
     TokenInfo {},
-    /// Only with "mintable" extension.
-    /// Returns who can mint and the hard cap on maximum tokens after minting.
-    /// Return type: MinterResponse.
     #[returns(RgMinterData)]
     Minter {},
-    /// Only with "enumerable" extension
-    /// Returns all accounts that have balances. Supports pagination.
-    /// Return type: AllAccountsResponse.
     #[returns(AllAccountsResponse)]
     AllAccounts {
         start_after: Option<String>,
         limit: Option<u32>,
     },
-    /// Only with "marketing" extension
-    /// Returns more metadata on the contract to display in the client:
-    /// - description, logo, project url, etc.
-    /// Return type: MarketingInfoResponse
     #[returns(MarketingInfoResponse)]
     MarketingInfo {},
-    /// Only with "marketing" extension
-    /// Downloads the embedded logo data (if stored on chain). Errors if no logo data is stored for this
-    /// contract.
-    /// Return type: DownloadLogoResponse.
     #[returns(DownloadLogoResponse)]
     DownloadLogo {},
+    #[returns(Vec<String>)]
+    TrustedIssuers {},
 }
 
 #[cw_serde]

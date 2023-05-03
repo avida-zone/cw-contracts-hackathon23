@@ -27,6 +27,9 @@ pub const BALANCES: Map<&Addr, Uint128> = Map::new("balance");
 pub const ALLOWANCES: Map<(&Addr, &Addr), AllowanceResponse> = Map::new("allowance");
 
 // Avida specific fields
+/// The list of trusted issuer for the SubProofReqParams credentials
+pub const TRUSTED_ISSUERS: Item<Vec<String>> = Item::new("trusted issuers");
+/// The subproofs required as part of the proof to be verified
 pub use avida_verifier::state::proof_request_data::SUB_PROOF_REQ_PARAMS;
 ///  The pending transation message whilst Avida verifier is verifying
 pub const PENDING_VERIFICATION: Item<(MessageInfo, ExecuteMsg)> = Item::new("pending-verification");

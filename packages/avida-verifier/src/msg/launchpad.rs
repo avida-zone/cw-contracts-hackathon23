@@ -51,6 +51,10 @@ pub enum ExecuteMsg {
         /// The address of the TG Adapter
         fee: Uint128,
     },
+    UpdateRgTokenCodeId {
+        /// The address of the TG Adapter
+        id: u64,
+    },
 }
 
 #[cw_serde]

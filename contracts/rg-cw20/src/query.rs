@@ -1,4 +1,4 @@
-use crate::contract::*;
+use crate::{contract::*, state::TRUSTED_ISSUERS};
 
 pub fn query_balance(deps: Deps, address: String) -> StdResult<BalanceResponse> {
     let address = deps.api.addr_validate(&address)?;
@@ -14,6 +14,10 @@ pub fn query_nonce(deps: Deps, address: String) -> StdResult<u64> {
         .may_load(deps.storage, &address)?
         .unwrap_or_default();
     Ok(nonce)
+}
+
+pub fn query_trusted_issers(deps: Deps) -> StdResult<Vec<String>> {
+    TRUSTED_ISSUERS.load(deps.storage)
 }
 
 pub fn query_token_info(deps: Deps) -> StdResult<TokenInfoResponse> {

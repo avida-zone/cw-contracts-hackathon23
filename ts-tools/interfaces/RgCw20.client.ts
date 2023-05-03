@@ -63,6 +63,7 @@ import {
   MarketingInfoResponse,
   Uint64,
   TokenInfoResponse,
+  ArrayOfString,
 } from "./RgCw20.types";
 export interface RgCw20ReadOnlyInterface {
   contractAddress: string;
@@ -79,6 +80,7 @@ export interface RgCw20ReadOnlyInterface {
   }) => Promise<AllAccountsResponse>;
   marketingInfo: () => Promise<MarketingInfoResponse>;
   downloadLogo: () => Promise<DownloadLogoResponse>;
+  trustedIssuers: () => Promise<ArrayOfString>;
 }
 export class RgCw20QueryClient implements RgCw20ReadOnlyInterface {
   client: CosmWasmClient;
@@ -94,6 +96,7 @@ export class RgCw20QueryClient implements RgCw20ReadOnlyInterface {
     this.allAccounts = this.allAccounts.bind(this);
     this.marketingInfo = this.marketingInfo.bind(this);
     this.downloadLogo = this.downloadLogo.bind(this);
+    this.trustedIssuers = this.trustedIssuers.bind(this);
   }
 
   balance = async ({
@@ -146,6 +149,11 @@ export class RgCw20QueryClient implements RgCw20ReadOnlyInterface {
   downloadLogo = async (): Promise<DownloadLogoResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       download_logo: {},
+    });
+  };
+  trustedIssuers = async (): Promise<ArrayOfString> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      trusted_issuers: {},
     });
   };
 }

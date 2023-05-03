@@ -1,8 +1,8 @@
 pub(crate) use crate::{
     error::ContractError,
     exec::{
-        exec_mint, exec_revert, exec_transform, exec_update_adapter, exec_update_fee,
-        exec_update_verifier, instantiate_rg_cw20,
+        exec_mint, exec_revert, exec_transform, exec_update_adapter, exec_update_code_id,
+        exec_update_fee, exec_update_verifier, instantiate_rg_cw20,
     },
     msg::{ContractResponse, ContractType, ExecuteMsg, InstantiateMsg, LaunchType, QueryMsg},
     state::{
@@ -69,6 +69,7 @@ pub fn execute(
         ExecuteMsg::UpdateVerifier { address } => exec_update_verifier(deps, info, address),
         ExecuteMsg::UpdateAdapter { address } => exec_update_adapter(deps, info, address),
         ExecuteMsg::UpdateFee { fee } => exec_update_fee(deps, info, fee),
+        ExecuteMsg::UpdateRgTokenCodeId { id } => exec_update_code_id(deps, info, id),
     }
 }
 
