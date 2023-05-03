@@ -28,7 +28,6 @@ interface CodeIds {
 
 (async function deploy() {
   const { admin } = accounts;
-  const privateKey = PrivateKey.fromMnemonic(admin.mnemonic);
   const endpoints = getNetworkEndpoints(Network.TestnetK8s);
 
   console.log("deploying to: ", endpoints);
@@ -48,7 +47,7 @@ interface CodeIds {
     simulateTx: true,
   });
 
-  /// ========================================
+  // ========================================
   //
   //  Instntiate launchpad
   //
@@ -119,8 +118,6 @@ interface CodeIds {
   //
   // =========================================
   //
-  // let launchpadAddr = "inj1c2fgmvfheym9h9q6tv236eljp30q40x9sde3ye";
-  // let vcVerifierAddr = "inj1zpjyyq4nej4xclk8cc7ww36h8qn3760xvasszk";
   let adapterInstMsg: AdapterInstMsg = {
     launchpad: launchpadAddr,
   };

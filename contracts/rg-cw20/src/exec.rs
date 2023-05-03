@@ -9,7 +9,7 @@ pub fn execute_adapter_transfer(
     recipient: Addr,
     amount: Uint128,
 ) -> Result<Response, ContractError> {
-    if info.sender != ADAPTER.load(deps.storage)? {
+    if info.sender != ADAPTER.query(&deps.querier, LAUNCHPAD.load(deps.storage)?)? {
         Err(ContractError::Unauthorized {})
     } else {
         BALANCES.update(

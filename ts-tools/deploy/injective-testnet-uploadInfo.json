@@ -1,7 +1,8 @@
 {
   "avidaIdentityPluginCodeId": 1107,
-  "adapterCodeId": 1118,
   "rgCw20CodeId": 1109,
   "vcVerifierCodeId": 1110,
-  "avidaLaunchpadCodeId": 1117
+  "avidaLaunchpadCodeId": 1117,
+  "adapterCodeId": 1123
 }
+
