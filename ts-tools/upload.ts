@@ -20,7 +20,7 @@ import { writeToFile } from "./utils";
 
   for await (const [key, value] of Object.entries(codePaths)) {
     console.log(key);
-    //if (key == "rgCw20CodePath") {
+    //if (key == "adapterCodePath") {
     try {
       const contract = fs.readFileSync(value);
       const msg = MsgStoreCode.fromJSON({

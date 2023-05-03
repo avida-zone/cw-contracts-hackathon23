@@ -6,7 +6,7 @@ use avida_verifier::{
 use cosmwasm_std::{BankMsg, Coin};
 
 use crate::contract::*;
-use crate::state::VERIFIER;
+use crate::state::{ADAPTER, VERIFIER};
 
 pub fn instantiate_rg_cw20(
     deps: DepsMut,
@@ -16,6 +16,15 @@ pub fn instantiate_rg_cw20(
     label: String,
     launch_type: LaunchType,
 ) -> Result<Response, ContractError> {
+    let required = Coin {
+        denom: "inj".to_string(),
+        amount: FEE.load(deps.storage)?,
+    };
+
+    if !info.funds.contains(&required) {
+        return Err(ContractError::FeeRequied(required));
+    }
+
     let reply_id = match launch_type.clone() {
         LaunchType::New(options) => {
             msg.mint = Some(RgMinterData {
@@ -56,6 +65,20 @@ pub fn instantiate_rg_cw20(
     Ok(res)
 }
 
+pub fn exec_update_fee(
+    deps: DepsMut,
+    info: MessageInfo,
+    fee: Uint128,
+) -> Result<Response, ContractError> {
+    let deployer = DEPLOYER.load(deps.storage)?;
+    if info.sender != deps.api.addr_humanize(&deployer)? {
+        Err(ContractError::Unauthorised)
+    } else {
+        FEE.save(deps.storage, &fee)?;
+        Ok(Response::new().add_attribute("Fee updated", fee))
+    }
+}
+
 pub fn exec_update_verifier(
     deps: DepsMut,
     info: MessageInfo,
@@ -68,6 +91,21 @@ pub fn exec_update_verifier(
     } else {
         VERIFIER.save(deps.storage, &validated_addr)?;
         Ok(Response::new().add_attribute("Verifier updated", validated_addr))
+    }
+}
+
+pub fn exec_update_adapter(
+    deps: DepsMut,
+    info: MessageInfo,
+    address: String,
+) -> Result<Response, ContractError> {
+    let validated_addr = deps.api.addr_validate(&address)?;
+    let deployer = DEPLOYER.load(deps.storage)?;
+    if info.sender != deps.api.addr_humanize(&deployer)? {
+        Err(ContractError::Unauthorised)
+    } else {
+        ADAPTER.save(deps.storage, &validated_addr)?;
+        Ok(Response::new().add_attribute("ADAPTER updated", validated_addr))
     }
 }
 

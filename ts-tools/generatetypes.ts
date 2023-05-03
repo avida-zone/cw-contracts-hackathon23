@@ -23,6 +23,10 @@ const outPath = join(__dirname, "./interfaces");
         name: "vc_verifier",
         dir: contractsPath("vc-verifier/schema"),
       },
+      {
+        name: "cw20-adapter",
+        dir: join(__dirname, "./schema/cw20_adapter/schema"),
+      },
     ],
     outPath,
     options: {

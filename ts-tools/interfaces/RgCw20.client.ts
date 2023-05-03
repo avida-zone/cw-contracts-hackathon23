@@ -152,6 +152,20 @@ export class RgCw20QueryClient implements RgCw20ReadOnlyInterface {
 export interface RgCw20Interface extends RgCw20ReadOnlyInterface {
   contractAddress: string;
   sender: string;
+  adapterTransfer: (
+    {
+      amount,
+      recipient,
+      sender,
+    }: {
+      amount: Uint128;
+      recipient: Addr;
+      sender: Addr;
+    },
+    fee?: number | StdFee | "auto",
+    memo?: string,
+    funds?: Coin[]
+  ) => Promise<ExecuteResult>;
   transfer: (
     {
       amount,
@@ -242,6 +256,7 @@ export class RgCw20Client extends RgCw20QueryClient implements RgCw20Interface {
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;
+    this.adapterTransfer = this.adapterTransfer.bind(this);
     this.transfer = this.transfer.bind(this);
     this.burn = this.burn.bind(this);
     this.send = this.send.bind(this);
@@ -250,6 +265,35 @@ export class RgCw20Client extends RgCw20QueryClient implements RgCw20Interface {
     this.uploadLogo = this.uploadLogo.bind(this);
   }
 
+  adapterTransfer = async (
+    {
+      amount,
+      recipient,
+      sender,
+    }: {
+      amount: Uint128;
+      recipient: Addr;
+      sender: Addr;
+    },
+    fee: number | StdFee | "auto" = "auto",
+    memo?: string,
+    funds?: Coin[]
+  ): Promise<ExecuteResult> => {
+    return await this.client.execute(
+      this.sender,
+      this.contractAddress,
+      {
+        adapter_transfer: {
+          amount,
+          recipient,
+          sender,
+        },
+      },
+      fee,
+      memo,
+      funds
+    );
+  };
   transfer = async (
     {
       amount,

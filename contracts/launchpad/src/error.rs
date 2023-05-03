@@ -1,4 +1,4 @@
-use cosmwasm_std::StdError;
+use cosmwasm_std::{Coin, StdError};
 use cw_utils::ParseReplyError;
 use thiserror::Error;
 
@@ -39,4 +39,7 @@ pub enum ContractError {
 
     #[error("Unauthorised")]
     Unauthorised,
+
+    #[error("Fee required {0}")]
+    FeeRequied(Coin),
 }

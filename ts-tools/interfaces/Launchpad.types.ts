@@ -44,6 +44,11 @@ export type ExecuteMsg =
       update_verifier: {
         address: string;
       };
+    }
+  | {
+      update_adapter: {
+        address: string;
+      };
     };
 export type LaunchType =
   | {
@@ -230,6 +235,9 @@ export type QueryMsg =
     }
   | {
       verifier: {};
+    }
+  | {
+      adapter: {};
     };
 export type ContractType = "new" | "transform";
 export type ArrayOfContractResponse = ContractResponse[];

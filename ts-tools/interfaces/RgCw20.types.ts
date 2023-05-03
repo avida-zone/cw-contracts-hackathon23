@@ -125,6 +125,13 @@ export interface WPredicate {
 }
 export type ExecuteMsg =
   | {
+      adapter_transfer: {
+        amount: Uint128;
+        recipient: Addr;
+        sender: Addr;
+      };
+    }
+  | {
       transfer: {
         amount: Uint128;
         proof: WProof;

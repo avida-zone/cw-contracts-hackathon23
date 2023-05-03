@@ -25,16 +25,18 @@ import {
   NetworkEndpoints,
   getNetworkEndpoints,
 } from "@injectivelabs/networks";
-import { ChainGrpcWasmApi } from "@injectivelabs/sdk-ts";
+import { ChainGrpcBankApi, ChainGrpcWasmApi } from "@injectivelabs/sdk-ts";
 
 export class QueryService {
   network: Network;
   endpoints: NetworkEndpoints;
   wasmApi: ChainGrpcWasmApi;
+  bankApi: ChainGrpcBankApi;
   constructor(network: Network, endpoints: NetworkEndpoints) {
     this.network = network;
     this.endpoints = endpoints;
     this.wasmApi = new ChainGrpcWasmApi(endpoints.grpc);
+    this.bankApi = new ChainGrpcBankApi(endpoints.grpc);
   }
 
   async queryWasm<T>(contractAddr: string, msg: unknown): Promise<T> {
@@ -44,6 +46,11 @@ export class QueryService {
       query
     );
     return JSON.parse(Buffer.from(response.data).toString()) as T;
+  }
+
+  async queryBalances<T>(account: string): Promise<{}> {
+    const balances = await this.bankApi.fetchBalances(account);
+    return balances;
   }
 }
 
@@ -65,6 +72,7 @@ export interface WalletPlugin {
 export interface ContractsInterface {
   launchpad: string;
   vcverifier: string;
+  adapter: string;
 }
 
 // Used to get subProofRequestParams from server

@@ -23,9 +23,6 @@ pub enum ContractError {
     #[error("Allowance is expired")]
     Expired {},
 
-    #[error("No allowance for this account")]
-    NoAllowance {},
-
     #[error("Minting cannot exceed the cap")]
     CannotExceedCap {},
 
