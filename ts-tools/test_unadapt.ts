@@ -48,13 +48,7 @@ import {
   console.log("current balance: ", current_native_balances);
 
   let tfdenom =
-    "factory/inj1zzm7s6thfkfr2hhpaq6m2c7xc0g3nek7gvrcht/inj1rfl7neqrtmhmujrktpll075latrq760c96emkc";
-  //for (let tf of current_native_balances.balances) {
-  //  if (tf.denom != "inj") {
-  //    tfdenom = tf.denom;
-  //  }
-  //}
-  //console.log("tfdenom:", tfdenom);
+    "factory/inj16n20mwtmvunl9tdkxajxzezn87z4jv5hgkjn5l/inj1w6ghr4pkladye5x9zj4cmx7lpg7a8tg4x2t63f";
 
   const current_rg_balances = await qs.queryWasm(
     rg1_transform_address.default,
