@@ -148,7 +148,7 @@ pub fn exec_mint(
                 .map_err(|_| ContractError::Overflow)?
                 != info.funds[0].amount
             {
-                Err(ContractError::MultipleDenom)
+                Err(ContractError::IncorrectFunds)
             } else {
                 let msg = avida_verifier::msg::rg_cw20::ExecuteMsg::Mint {
                     amount,

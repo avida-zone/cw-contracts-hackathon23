@@ -166,10 +166,22 @@ pub struct WProof {
     pub aggregated_proof: WAggregatedProof,
 }
 
+impl WProof {
+    pub fn mock() -> Self {
+        Self {
+            proofs: vec![],
+            aggregated_proof: WAggregatedProof {
+                c_hash: BigNumberBytes("c_hash".into()),
+                c_list: vec![],
+            },
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone, PartialEq)]
 pub struct WAggregatedProof {
-    c_hash: BigNumberBytes,
-    c_list: Vec<Vec<u8>>,
+    pub c_hash: BigNumberBytes,
+    pub c_list: Vec<Vec<u8>>,
 }
 
 impl TryFrom<WProof> for Proof {

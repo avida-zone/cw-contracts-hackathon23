@@ -1,3 +1,4 @@
+use crate::state::INST_FEE;
 pub(crate) use crate::{
     error::ContractError,
     exec::{
@@ -113,6 +114,9 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             limit,
             contract_type,
         } => to_binary(&query_contracts(deps, start_after, limit, contract_type)?),
+        QueryMsg::RegisteredContract { address } => to_binary(&query_contract(deps, address)?),
+        QueryMsg::Fee {} => to_binary(&query_fee(deps)?),
+        QueryMsg::RgCodeId {} => to_binary(&query_code_id(deps)?),
         QueryMsg::Verifier {} => to_binary(&query_verifier(deps)?),
         QueryMsg::Adapter {} => to_binary(&query_adapter(deps)?),
     }
@@ -132,12 +136,33 @@ pub fn factory_instantiate(
     Ok(Response::new().add_event(event))
 }
 
+pub fn query_fee(deps: Deps) -> StdResult<Coin> {
+    INST_FEE.load(deps.storage)
+}
+
+pub fn query_code_id(deps: Deps) -> StdResult<u64> {
+    RG_CW_20_CODE_ID.load(deps.storage)
+}
+
 pub fn query_verifier(deps: Deps) -> StdResult<Addr> {
     VERIFIER.load(deps.storage)
 }
 
 pub fn query_adapter(deps: Deps) -> StdResult<Addr> {
     ADAPTER.load(deps.storage)
+}
+
+pub fn query_contract(deps: Deps, address: String) -> StdResult<ContractResponse> {
+    let valid_addr = deps.api.addr_validate(&address)?;
+    let options = if let Some(options) = RG_CONTRACTS.may_load(deps.storage, valid_addr.clone())? {
+        options
+    } else {
+        RG_TRANSFORM.load(deps.storage, valid_addr.clone())?
+    };
+    Ok(ContractResponse {
+        contract_address: valid_addr,
+        options,
+    })
 }
 
 pub const DEFAULT_LIMIT: u64 = 20;

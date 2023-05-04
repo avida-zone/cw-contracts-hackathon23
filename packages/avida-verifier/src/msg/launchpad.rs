@@ -2,7 +2,7 @@ use crate::msg::rg_cw20::InstantiateMsg as RgCw20InstantiateMsg;
 pub use crate::state::launchpad::{LaunchType, LaunchpadOptions};
 use crate::types::WProof;
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{Addr, Uint128};
+use cosmwasm_std::{Addr, Coin, Uint128};
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -66,6 +66,12 @@ pub enum QueryMsg {
         limit: Option<u64>,
         contract_type: ContractType,
     },
+    #[returns(ContractResponse)]
+    RegisteredContract { address: String },
+    #[returns(Coin)]
+    Fee {},
+    #[returns(u64)]
+    RgCodeId {},
     #[returns(Addr)]
     Verifier {},
     #[returns(Addr)]
