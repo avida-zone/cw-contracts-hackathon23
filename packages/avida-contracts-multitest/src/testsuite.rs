@@ -17,6 +17,7 @@ use rg_cw20::contract::{
 };
 use serde;
 use serde_json;
+use std::convert::TryInto;
 use vc_verifier::contract::{
     execute as vc_verifier_execute, instantiate as vc_verifier_instantiate,
     query as vc_verifier_query,
@@ -58,7 +59,7 @@ pub struct AvidaTest {
 
 pub fn load_verifier_init_data(issuer: &str) -> WSubProofReqParams {
     let (credential_schema, non_credential_schema, credential_pub_key, sub_proof_request) =
-        get_issuer_setup_outputs(issuer.into());
+        get_issuer_setup_outputs(issuer);
 
     WSubProofReqParams {
         sub_proof_request,
@@ -72,8 +73,7 @@ pub fn load_verifier_init_data(issuer: &str) -> WSubProofReqParams {
 
 impl AvidaTest {
     pub fn init() -> Self {
-        let issuer_param = load_verifier_init_data("trusted_issuer");
-        let wallet_param = load_verifier_init_data("self_issued");
+        let wallet_param = load_verifier_init_data("trusted_issuer");
 
         let vc_verifier_inst_msg = VcVerifierInstMsg {
             launchpad: Addr::unchecked("launchpad"),
@@ -130,7 +130,7 @@ impl AvidaTest {
     }
 
     pub fn vectis_account_installs_identity_plugin(&mut self) -> Addr {
-        let wallet = load_verifier_init_data("wallet");
+        let wallet = load_verifier_init_data("self_issued");
         self.vectis
             .hub
             .app

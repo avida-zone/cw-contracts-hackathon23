@@ -4,6 +4,8 @@ use avida_verifier::types::{
     WSubProofReq,
 };
 use serde_json;
+use std::convert::TryFrom;
+use ursa::cl::CredentialPublicKey;
 
 //  Limit: We only support 1 subProofReq per issuer
 pub fn get_issuer_setup_outputs(
@@ -14,19 +16,28 @@ pub fn get_issuer_setup_outputs(
     WCredentialPubKey,
     WSubProofReq,
 ) {
+    println!("issuer: {}", issuer);
     match issuer {
-        "trusted_issuer" => (
-            serde_json::from_str(&CRED_SCHEMA).unwrap(),
-            serde_json::from_str(&NON_CRED_SCHEMA).unwrap(),
-            serde_json::from_str(&SUB_PROOF_REQ).unwrap(),
-            serde_json::from_str(&PUB_KEY).unwrap(),
-        ),
-        "self_issued" => (
-            serde_json::from_str(&SELF_CRED_SCHEMA).unwrap(),
-            serde_json::from_str(&SELF_NON_CRED_SCHEMA).unwrap(),
-            serde_json::from_str(&SELF_SUB_PROOF_REQ).unwrap(),
-            serde_json::from_str(&SELF_PUB_KEY).unwrap(),
-        ),
+        "trusted_issuer" => {
+            let pk: CredentialPublicKey = serde_json::from_str(&PUB_KEY).unwrap();
+            let wpk = WCredentialPubKey::try_from(pk).unwrap();
+            (
+                serde_json::from_str(&CRED_SCHEMA).unwrap(),
+                serde_json::from_str(&NON_CRED_SCHEMA).unwrap(),
+                wpk,
+                serde_json::from_str(&SUB_PROOF_REQ).unwrap(),
+            )
+        }
+        "self_issued" => {
+            let pk: CredentialPublicKey = serde_json::from_str(&SELF_PUB_KEY).unwrap();
+            let wpk = WCredentialPubKey::try_from(pk).unwrap();
+            (
+                serde_json::from_str(&SELF_CRED_SCHEMA).unwrap(),
+                serde_json::from_str(&SELF_NON_CRED_SCHEMA).unwrap(),
+                wpk,
+                serde_json::from_str(&SELF_SUB_PROOF_REQ).unwrap(),
+            )
+        }
         _ => panic!("not supported"),
     }
 }
