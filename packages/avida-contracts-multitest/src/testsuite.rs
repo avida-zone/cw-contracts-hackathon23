@@ -1,27 +1,26 @@
-use cw_multi_test::{App, AppResponse, Contract, ContractWrapper, Executor};
-
-use vc_verifier::contract::{
-    execute as vc_verifier_execute, instantiate as vc_verifier_instantiate,
-    query as vc_verifier_query,
-};
-
-use rg_cw20::contract::{
-    execute as rg_execute, instantiate as rg_instantiate, query as rg_query, reply as rg_reply,
-};
-
-use anoncreds_identity_plugin::contract::{
+use crate::helper::{get_issuer_setup_outputs, get_proof};
+use avida_identity_plugin::contract::{
     execute as plugin_execute, instantiate as plugin_instantiate, query as plugin_query,
     InstantiateMsg as PluginInstMsg,
 };
 use avida_verifier::{
-    helper::{get_issuer_setup_outputs, get_proof},
-    msg::vc_verifier::{ExecuteMsg as VcVerifierExecMsg, InstantiateMsg as VcVerifierInstMsg},
+    msg::{
+        launchpad as launchpadMsg,
+        vc_verifier::{ExecuteMsg as VcVerifierExecMsg, InstantiateMsg as VcVerifierInstMsg},
+    },
     types::{WSubProofReq, WSubProofReqParams, PLUGIN_QUERY_KEY},
 };
-
 use cosmwasm_std::{coin, to_binary, Addr, CosmosMsg, Empty, WasmMsg};
+use cw_multi_test::{App, AppResponse, Contract, ContractWrapper, Executor};
+use rg_cw20::contract::{
+    execute as rg_execute, instantiate as rg_instantiate, query as rg_query, reply as rg_reply,
+};
 use serde;
 use serde_json;
+use vc_verifier::contract::{
+    execute as vc_verifier_execute, instantiate as vc_verifier_instantiate,
+    query as vc_verifier_query,
+};
 
 use vectis_contract_tests::common::common::{
     proxy_exec, PRegistryExecMsg, DENOM, INSTALL_FEE, REGISTRY_FEE,
@@ -73,14 +72,14 @@ pub fn load_verifier_init_data(issuer: &str) -> WSubProofReqParams {
 
 impl AvidaTest {
     pub fn init() -> Self {
-        let issuer_param = load_verifier_init_data("issuer");
-        let wallet_param = load_verifier_init_data("wallet");
+        let issuer_param = load_verifier_init_data("trusted_issuer");
+        let wallet_param = load_verifier_init_data("self_issued");
 
         let vc_verifier_inst_msg = VcVerifierInstMsg {
-            req_params: vec![issuer_param],
-            wallet_cred_schema: wallet_param.credential_schema,
-            wallet_non_cred_schema: wallet_param.non_credential_schema,
-            wallet_sub_proof_request: wallet_param.sub_proof_request,
+            launchpad: Addr::unchecked("launchpad"),
+            vectis_cred_schema: wallet_param.credential_schema,
+            vectis_non_cred_schema: wallet_param.non_credential_schema,
+            vectis_sub_proof_request: wallet_param.sub_proof_request,
         };
 
         let mut vectis = PluginsSuite::init().unwrap();

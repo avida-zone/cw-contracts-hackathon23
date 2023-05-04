@@ -62,6 +62,7 @@ dependencies = [
  "rg-cw20",
  "serde",
  "serde_json",
+ "ursa",
  "vc-verifier",
  "vectis-contract-tests",
  "vectis-wallet 0.1.0 (git+https://github.com/nymlab/vectis?rev=806d189bf4f89)",

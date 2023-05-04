@@ -12,6 +12,3 @@ pub(crate) mod verify_vc_proof;
 mod util;
 
 pub use crate::error::ContractError;
-
-#[cfg(test)]
-mod tests;

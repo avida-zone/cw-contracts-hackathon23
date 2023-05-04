@@ -19,7 +19,7 @@ rg-cw20 = {path = "../../contracts/rg-cw20"}
 vectis-contract-tests = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
 avida-verifier = { path = "../avida-verifier" }
 vectis-wallet = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
-# vectis-contract-tests = {git = "https://github.com/nymlab/vectis", rev = "149bdb3"}
+ursa = { git = "https://github.com/whalelephant/ursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7", rev = "7cdccf35fb1a0"}
 #rg-cw20 = {path = "../../contracts/rg-cw20"}
 
 
