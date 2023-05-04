@@ -6,12 +6,13 @@
   "scripts": {
     "upload": "ts-node ./upload.ts",
     "deploy": "ts-node ./deploy.ts",
+    "test": "jest mint_new_rg.spec.ts --runInBand",
+    "test-adapt-new": "jest ./adapt_new_rg.spec.ts",
     "test-create-rgToken": "ts-node ./test-create-rgtokens.ts",
     "test-create-account": "ts-node ./test_create_account_plugin.ts",
     "test-mint": "ts-node ./test_account_mint_rg.ts",
     "test-transform-inj": "ts-node ./test_account_transform.ts",
     "test-revert-rginj": "ts-node ./test_revert_transform.ts",
-    "test-adapt": "ts-node ./test_adapt.ts",
     "test-unadapt": "ts-node ./test_unadapt.ts",
     "types:generate": "ts-node generatetypes.ts && npm run prettier",
     "prettier": "prettier --write \"**/*.{js,ts}\""

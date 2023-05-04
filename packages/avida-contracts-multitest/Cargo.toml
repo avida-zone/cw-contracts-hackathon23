@@ -14,10 +14,12 @@ cosmwasm-std = "1.0.1"
 serde = { version = "1.0"}
 serde_json = { version = "1.0"}
 vc-verifier = { path = "../../contracts/vc-verifier" }
-avida-identity-plugin = {path = "../../contracts/identity-plugin"}
+avida-identity-plugin = { path = "../../contracts/identity-plugin" }
 rg-cw20 = {path = "../../contracts/rg-cw20"}
-vectis-contract-tests = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
+avida-launchpad =  { path = "../../contracts/launchpad" }
 avida-verifier = { path = "../avida-verifier" }
+cw20-adapter = { git = "https://github.com/avida-zone/cw20-adapter" }
+vectis-contract-tests = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
 vectis-wallet = { git = "https://github.com/nymlab/vectis", rev = "806d189bf4f89" }
 ursa = { git = "https://github.com/whalelephant/ursa", default-features = false, features = ["cl_onchain", "serde"], version = "0.3.7", rev = "7cdccf35fb1a0"}
 #rg-cw20 = {path = "../../contracts/rg-cw20"}

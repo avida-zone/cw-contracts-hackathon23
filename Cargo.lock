@@ -56,9 +56,11 @@ name = "avida-contracts-multitest"
 version = "0.1.0"
 dependencies = [
  "avida-identity-plugin",
+ "avida-launchpad",
  "avida-verifier 0.1.0",
  "cosmwasm-std",
  "cw-multi-test",
+ "cw20-adapter",
  "rg-cw20",
  "serde",
  "serde_json",

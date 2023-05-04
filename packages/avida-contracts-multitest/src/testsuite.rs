@@ -1,8 +1,4 @@
 use crate::helper::{get_issuer_setup_outputs, get_proof};
-use avida_identity_plugin::contract::{
-    execute as plugin_execute, instantiate as plugin_instantiate, query as plugin_query,
-    InstantiateMsg as PluginInstMsg,
-};
 use avida_verifier::{
     msg::{
         launchpad as launchpadMsg,
@@ -12,12 +8,19 @@ use avida_verifier::{
 };
 use cosmwasm_std::{coin, to_binary, Addr, CosmosMsg, Empty, WasmMsg};
 use cw_multi_test::{App, AppResponse, Contract, ContractWrapper, Executor};
+
+// Contracts
+use avida_identity_plugin::contract::{
+    execute as plugin_execute, instantiate as plugin_instantiate, query as plugin_query,
+    InstantiateMsg as PluginInstMsg,
+};
+use avida_launchpad::contract::{
+    execute as launchpad_execute, instantiate as launchpad_instantiate, query as launchpad_query,
+    reply as launchpad_reply,
+};
 use rg_cw20::contract::{
     execute as rg_execute, instantiate as rg_instantiate, query as rg_query, reply as rg_reply,
 };
-use serde;
-use serde_json;
-use std::convert::TryInto;
 use vc_verifier::contract::{
     execute as vc_verifier_execute, instantiate as vc_verifier_instantiate,
     query as vc_verifier_query,
@@ -29,8 +32,13 @@ use vectis_contract_tests::common::common::{
 use vectis_contract_tests::common::plugins_common::PluginsSuite;
 use vectis_wallet::{PluginParams, PluginPermissions, PluginSource, ProxyExecuteMsg};
 
-const ISSUER: &str = "Issuer";
+const DEPLOYER: &str = "Issuer";
 
+pub fn contract_launchpad() -> Box<dyn Contract<Empty>> {
+    let contract = ContractWrapper::new(launchpad_execute, launchpad_instantiate, launchpad_query)
+        .with_reply(launchpad_reply);
+    Box::new(contract)
+}
 pub fn contract_rg() -> Box<dyn Contract<Empty>> {
     let contract = ContractWrapper::new(rg_execute, rg_instantiate, rg_query).with_reply(rg_reply);
     Box::new(contract)
@@ -44,7 +52,6 @@ pub fn contract_vc_verifier() -> Box<dyn Contract<Empty>> {
     );
     Box::new(contract)
 }
-
 pub fn contract_identity_plugin() -> Box<dyn Contract<Empty>> {
     let contract = ContractWrapper::new(plugin_execute, plugin_instantiate, plugin_query);
     Box::new(contract)
@@ -53,8 +60,8 @@ pub fn contract_identity_plugin() -> Box<dyn Contract<Empty>> {
 pub struct AvidaTest {
     pub vectis: PluginsSuite,
     pub vc_verifier: Addr,
+    pub launchpad: Addr,
     pub identity_plugin_id: u64,
-    //rg_cw20: Addr,
 }
 
 pub fn load_verifier_init_data(issuer: &str) -> WSubProofReqParams {
@@ -73,8 +80,35 @@ pub fn load_verifier_init_data(issuer: &str) -> WSubProofReqParams {
 
 impl AvidaTest {
     pub fn init() -> Self {
+        let mut vectis = PluginsSuite::init().unwrap();
+
         let wallet_param = load_verifier_init_data("trusted_issuer");
 
+        let identity_plugin_code_id = vectis.hub.app.store_code(contract_identity_plugin());
+        let launchpad_code_id = vectis.hub.app.store_code(contract_launchpad());
+        let rg_cw20_code_id = vectis.hub.app.store_code(contract_rg());
+
+        // ===================================
+        // instantiates launchpad
+        // ===================================
+        let launchpad_inst_msg = launchpadMsg::InstantiateMsg { rg_cw20_code_id };
+        let launchpad = vectis
+            .hub
+            .app
+            .instantiate_contract(
+                launchpad_code_id,
+                Addr::unchecked(DEPLOYER),
+                &launchpad_inst_msg,
+                &[],
+                "AVIPAD",
+                None,
+            )
+            .unwrap();
+
+        // ===================================
+        // instantiates vc_verifier
+        // ===================================
+        let vc_verifier_code_id = vectis.hub.app.store_code(contract_vc_verifier());
         let vc_verifier_inst_msg = VcVerifierInstMsg {
             launchpad: Addr::unchecked("launchpad"),
             vectis_cred_schema: wallet_param.credential_schema,
@@ -82,17 +116,12 @@ impl AvidaTest {
             vectis_sub_proof_request: wallet_param.sub_proof_request,
         };
 
-        let mut vectis = PluginsSuite::init().unwrap();
-        let vc_verifier_code_id = vectis.hub.app.store_code(contract_vc_verifier());
-        let identity_plugin_code_id = vectis.hub.app.store_code(contract_identity_plugin());
-
-        // instantiates vc_verifier
         let vc_verifier = vectis
             .hub
             .app
             .instantiate_contract(
                 vc_verifier_code_id,
-                Addr::unchecked(ISSUER),
+                Addr::unchecked(DEPLOYER),
                 &vc_verifier_inst_msg,
                 &[],
                 "Anoncreds RG Token verifier",
@@ -126,6 +155,7 @@ impl AvidaTest {
             vectis,
             vc_verifier,
             identity_plugin_id,
+            launchpad,
         }
     }
 
@@ -155,7 +185,6 @@ impl AvidaTest {
         self.vectis.query_installed_plugins().unwrap().query_plugins[0].clone()
     }
 
-    // TODO: impl TryFrom<Proof> for WProof
     pub fn vectis_verifier_verifies(&mut self) {
         let (proof, proof_req_nonce) = get_proof();
         self.vectis

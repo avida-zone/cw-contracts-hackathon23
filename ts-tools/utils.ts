@@ -20,11 +20,7 @@ import {
   WCredentialPrimaryPubKey,
 } from "./interfaces/IdentityPlugin.types";
 import { WSubProofReqParams } from "./interfaces/RgCw20.types";
-import {
-  Network,
-  NetworkEndpoints,
-  getNetworkEndpoints,
-} from "@injectivelabs/networks";
+import { Network, NetworkEndpoints } from "@injectivelabs/networks";
 import { ChainGrpcBankApi, ChainGrpcWasmApi } from "@injectivelabs/sdk-ts";
 
 export class QueryService {
@@ -50,6 +46,11 @@ export class QueryService {
 
   async queryBalances<T>(account: string): Promise<{}> {
     const balances = await this.bankApi.fetchBalances(account);
+    return balances;
+  }
+
+  async queryBalance<T>(accountAddress: string, denom: string): Promise<{}> {
+    const balances = await this.bankApi.fetchBalance({ accountAddress, denom });
     return balances;
   }
 }
@@ -84,7 +85,6 @@ export async function getIssuerSubProofRequestParam(): Promise<[string]> {
   // i.e. `https://avida-api.vectis.space/generate-proof/controller_addr/wallet_addr/13/?issuer=gayadeed&issuer=infocert`
   const { data } = await axios.get(
     "https://avida-api.vectis.space/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
-    //"http://0.0.0.0:8000/sub-proof-req-params/?issuer=gayadeed&issuer=identrust&issuer=infocert",
     { responseType: "json" }
   );
 
@@ -113,7 +113,6 @@ export async function generateProof(
 ): Promise<WProof> {
   const { data } = await axios.post(
     `https://avida-api.vectis.space/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
-    //`http://0.0.0.0:8000/generate-proof/${controller_addr}/${wallet_addr}/${nonce}/?issuer=gayadeed&issuer=identrust&issuer=infocert`,
     { responseType: "json" }
   );
   console.log(data);
@@ -144,8 +143,6 @@ export const extractValueFromEvent = (
 };
 
 export function parseProof(proofJSON: WProof): WProof {
-  //const proof = fs.readFileSync(path, { encoding: "utf8" });
-
   const aggregatedProof: WAggregatedProof = {
     c_hash: toBigNumberBytes(proofJSON.aggregated_proof.c_hash),
     c_list: proofJSON.aggregated_proof.c_list,
@@ -164,7 +161,6 @@ export function parseProof(proofJSON: WProof): WProof {
       revealed_attrs: toWMap(eqProof.revealed_attrs),
       v: toBigNumberBytes(eqProof.v),
     };
-    // TODO ne_proofs
     parsedSubProofs.push({
       primary_proof: { eq_proof: prim_eq_proof, ne_proofs: [] },
     } as WSubProof);
@@ -183,7 +179,6 @@ export function getSubProofReq(path: string): WSubProofReq {
 
 export function parseSubProofReq(input: string): WSubProofReq {
   const subPR = JSON.parse(input);
-  // TODO predicates
   const revealed_attrs: WBTreeSetForString = subPR.revealed_attrs;
   return {
     revealed_attrs,

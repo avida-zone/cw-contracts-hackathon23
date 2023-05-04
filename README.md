@@ -1,7 +1,7 @@
 # Smart Contracts for AVIPAD
 
 [AVIPAD] is a token launchpad for regulatory grade tokens (rgTokens).
-It implements the AVIDA (Atomic Verification of Identity for Decentralised Applications) framework of using
+It implements the AVIDA (Atomic Verification of Identity proofs for Decentralised Applications) framework of using
 
 - [AnonCreds] verifiable credentials
 - Onchain verifier
