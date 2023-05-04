@@ -4,19 +4,19 @@ import {
   PrivateKey,
 } from "@injectivelabs/sdk-ts";
 import { getNetworkEndpoints, Network } from "@injectivelabs/networks";
-import { accounts } from "./accounts";
+import { accounts } from "../accounts";
 import {
   ContractsInterface,
   QueryService,
   WalletPlugin,
   toCosmosMsg,
   generateProof,
-} from "./utils";
-import { ExecuteMsg as LaunchPadMsg } from "./interfaces/Launchpad.types";
-import { BalanceResponse } from "./interfaces/RgCw20.types";
+} from "../utils";
+import { ExecuteMsg as LaunchPadMsg } from "../interfaces/Launchpad.types";
+import { BalanceResponse } from "../interfaces/RgCw20.types";
 import { ProxyT } from "@vectis/types";
 
-describe("Mint: ", () => {
+describe("Mint of new rgToken: ", () => {
   let privateKey;
   let network;
   let endpoints;
@@ -40,16 +40,16 @@ describe("Mint: ", () => {
     qs = new QueryService(network, endpoints);
 
     let contracts = (await import(
-      "./deploy/injective-testnet-deployInfo.json"
+      "../deploy/injective-testnet-deployInfo.json"
     )) as ContractsInterface;
     launchpad = contracts.launchpad;
 
     let walletAddrs = (await import(
-      "./deploy/plugin_account.json"
+      "../deploy/plugin_account.json"
     )) as WalletPlugin;
     wallet = walletAddrs.wallet;
 
-    let new_token = await import("./deploy/rg1_new_address.json");
+    let new_token = await import("../deploy/rg1_new_address.json");
     rg1_new_addr = new_token.default;
   });
 

@@ -20,7 +20,7 @@ import { writeToFile } from "./utils";
 
   for await (const [key, value] of Object.entries(codePaths)) {
     console.log(key);
-    //if (key == "adapterCodePath") {
+    //  if (key == "adapterCodePath") {
     try {
       const contract = fs.readFileSync(value);
       const msg = MsgStoreCode.fromJSON({
@@ -49,7 +49,7 @@ import { writeToFile } from "./utils";
     } catch (err) {
       console.log("Upload failed: ", key, "errr: ", err);
     }
-    //}
+    //  }
   }
 
   writeToFile(

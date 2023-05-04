@@ -32,8 +32,8 @@ Please see the [adapter repo] for detail.
 
 ### Tests
 
-- [avida-contracts-multitest] -> holds contract multitest
-- [ts-tools] -> deploys all contracts to testnet, has ts types and tests interactions
+- [ts-tools] -> deploys all contracts to testnet, has ts types and tests interactions, simply run `npm run test`
+- [avida-contracts-multitest] -> holds contract multitest, run `cargo test`
 
 [vectis account]: https://github.com/nymlab/vectis
 [anoncreds]: https://hyperledger.github.io/anoncreds-spec/

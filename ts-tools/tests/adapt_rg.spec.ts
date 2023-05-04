@@ -4,38 +4,33 @@ import {
   PrivateKey,
 } from "@injectivelabs/sdk-ts";
 import { getNetworkEndpoints, Network } from "@injectivelabs/networks";
-import { accounts } from "./accounts";
+import { accounts } from "../accounts";
 import {
   ContractsInterface,
   QueryService,
   WalletPlugin,
   toCosmosMsg,
   generateProof,
-} from "./utils";
-import { ExecuteMsg as LaunchPadMsg } from "./interfaces/Launchpad.types";
+} from "../utils";
 import {
   BalanceResponse,
   ExecuteMsg as RgCw20ExecMsg,
-} from "./interfaces/RgCw20.types";
+} from "../interfaces/RgCw20.types";
 import { ProxyT } from "@vectis/types";
-import {
-  Coin,
-  ExecuteMsg as AdapterExecMsg,
-} from "./interfaces/Cw20Adapter.types";
+import { ExecuteMsg as AdapterExecMsg } from "../interfaces/Cw20Adapter.types";
 
-describe("Mint: ", () => {
+describe("Adapt rgToken => Native rgToken and back: ", () => {
   let privateKey;
   let network;
   let endpoints;
   let client: MsgBroadcasterWithPk;
   let userAddr: string;
   let qs: QueryService;
-  let launchpad: string;
   let adapter: string;
   let wallet: string;
-  let rg1_new_addr: string;
+  let rg1_addr: string;
   let tfDenom: string;
-  const adaptAmount = "1";
+  let adaptAmount: string;
 
   beforeAll(async () => {
     userAddr = accounts.user.address;
@@ -50,24 +45,24 @@ describe("Mint: ", () => {
     qs = new QueryService(network, endpoints);
 
     let contracts = (await import(
-      "./deploy/injective-testnet-deployInfo.json"
+      "../deploy/injective-testnet-deployInfo.json"
     )) as ContractsInterface;
-    launchpad = contracts.launchpad;
     adapter = contracts.adapter;
 
     let walletAddrs = (await import(
-      "./deploy/plugin_account.json"
+      "../deploy/plugin_account.json"
     )) as WalletPlugin;
     wallet = walletAddrs.wallet;
 
-    let new_token = await import("./deploy/rg1_new_address.json");
-    rg1_new_addr = new_token.default;
+    let new_token = await import("../deploy/rg1_transform_address.json");
+    rg1_addr = new_token.default;
 
-    tfDenom = "factory/" + adapter + "/" + rg1_new_addr;
+    tfDenom = "factory/" + adapter + "/" + rg1_addr;
+    adaptAmount = "1";
   });
 
-  it.skip("should not able to adapt token with wrong proof", async () => {
-    const initNonce: string = await qs.queryWasm(rg1_new_addr, {
+  it("should not able to adapt token with wrong proof", async () => {
+    const initNonce: string = await qs.queryWasm(rg1_addr, {
       proof_nonce: { address: wallet },
     });
 
@@ -90,7 +85,7 @@ describe("Mint: ", () => {
     let proxy_msg: ProxyT.CosmosMsgForEmpty = {
       wasm: {
         execute: {
-          contract_addr: rg1_new_addr,
+          contract_addr: rg1_addr,
           funds: [],
           msg: toCosmosMsg(rg_cw20_send_msg),
         },
@@ -112,10 +107,10 @@ describe("Mint: ", () => {
   });
 
   it("should be able to adapt token", async () => {
-    const initNonce: string = await qs.queryWasm(rg1_new_addr, {
+    const initNonce: string = await qs.queryWasm(rg1_addr, {
       proof_nonce: { address: wallet },
     });
-    const initRgBalance: BalanceResponse = await qs.queryWasm(rg1_new_addr, {
+    const initRgBalance: BalanceResponse = await qs.queryWasm(rg1_addr, {
       balance: { address: wallet },
     });
     const initTfBalance = await qs.queryBalance(wallet, tfDenom);
@@ -135,7 +130,7 @@ describe("Mint: ", () => {
     let proxy_msg: ProxyT.CosmosMsgForEmpty = {
       wasm: {
         execute: {
-          contract_addr: rg1_new_addr,
+          contract_addr: rg1_addr,
           funds: [],
           msg: toCosmosMsg(rg_cw20_send_msg),
         },
@@ -153,22 +148,23 @@ describe("Mint: ", () => {
       injectiveAddress: userAddr,
     });
 
-    const afterNonce: string = await qs.queryWasm(rg1_new_addr, {
+    const afterNonce: string = await qs.queryWasm(rg1_addr, {
       proof_nonce: { address: wallet },
     });
-    const afterRgBalance: BalanceResponse = await qs.queryWasm(rg1_new_addr, {
+    const afterRgBalance: BalanceResponse = await qs.queryWasm(rg1_addr, {
       balance: { address: wallet },
     });
     const afterTfBalance = await qs.queryBalance(wallet, tfDenom);
 
-    console.log("init: ", +initRgBalance + +adaptAmount);
     expect(+afterNonce).toEqual(+initNonce + 1);
-    expect(+afterRgBalance).toEqual(+initRgBalance - +adaptAmount);
+    expect(+afterRgBalance.balance).toEqual(
+      +initRgBalance.balance - +adaptAmount
+    );
     expect(+afterTfBalance).toEqual(+initTfBalance + +adaptAmount);
   });
 
   it("should be able to unadapt token", async () => {
-    const initRgBalance: BalanceResponse = await qs.queryWasm(rg1_new_addr, {
+    const initRgBalance: BalanceResponse = await qs.queryWasm(rg1_addr, {
       balance: { address: wallet },
     });
     const initTfBalance = await qs.queryBalance(wallet, tfDenom);
@@ -201,16 +197,16 @@ describe("Mint: ", () => {
       injectiveAddress: userAddr,
     });
 
-    const afterRgBalance: BalanceResponse = await qs.queryWasm(rg1_new_addr, {
+    const afterRgBalance: BalanceResponse = await qs.queryWasm(rg1_addr, {
       balance: { address: wallet },
     });
     const afterTfBalance = await qs.queryBalance(wallet, tfDenom);
 
-    console.log("init: ", +initRgBalance + +adaptAmount);
-    console.log("after: ", afterRgBalance);
-    console.log(initTfBalance);
-    console.log(afterTfBalance);
-    expect(+afterRgBalance).toEqual(+initRgBalance + +adaptAmount);
+    console.log(initRgBalance);
+    console.log(afterRgBalance);
+    expect(+afterRgBalance.balance).toEqual(
+      +initRgBalance.balance + +adaptAmount
+    );
     expect(+afterTfBalance).toEqual(+initTfBalance - +adaptAmount);
   });
 });
