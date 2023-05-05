@@ -84,7 +84,7 @@ import { ProxyT, FactoryT } from "@vectis/types";
       instantiate_msg: toCosmosMsg(identity_inst),
       label: "Plugin for Vectis",
       plugin_params,
-      src: { code_id: 991 },
+      src: { code_id: 1173 },
     },
   };
 

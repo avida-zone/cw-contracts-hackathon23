@@ -202,8 +202,8 @@ describe("Adapt rgToken => Native rgToken and back: ", () => {
     });
     const afterTfBalance = await qs.queryBalance(wallet, tfDenom);
 
-    console.log(initRgBalance);
-    console.log(afterRgBalance);
+    console.log("initial RG: ", initRgBalance);
+    console.log("after RG:", afterRgBalance);
     expect(+afterRgBalance.balance).toEqual(
       +initRgBalance.balance + +adaptAmount
     );

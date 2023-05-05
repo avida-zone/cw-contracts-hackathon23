@@ -245,13 +245,23 @@ export type QueryMsg =
       };
     }
   | {
+      registered_contract: {
+        address: string;
+      };
+    }
+  | {
+      fee: {};
+    }
+  | {
+      rg_code_id: {};
+    }
+  | {
       verifier: {};
     }
   | {
       adapter: {};
     };
 export type ContractType = "new" | "transform";
-export type ArrayOfContractResponse = ContractResponse[];
 export interface ContractResponse {
   contract_address: Addr;
   options: LaunchpadOptions;
@@ -260,3 +270,5 @@ export interface LaunchpadOptions {
   launch_type: LaunchType;
   originator: Addr;
 }
+export type ArrayOfContractResponse = ContractResponse[];
+export type Uint64 = number;

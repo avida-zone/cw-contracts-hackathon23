@@ -62,9 +62,10 @@ import {
   WPrimaryPredicateInequalityProof,
   QueryMsg,
   ContractType,
-  ArrayOfContractResponse,
   ContractResponse,
   LaunchpadOptions,
+  ArrayOfContractResponse,
+  Uint64,
 } from "./Launchpad.types";
 export interface LaunchpadReadOnlyInterface {
   contractAddress: string;
@@ -77,6 +78,13 @@ export interface LaunchpadReadOnlyInterface {
     limit?: number;
     startAfter?: string;
   }) => Promise<ArrayOfContractResponse>;
+  registeredContract: ({
+    address,
+  }: {
+    address: string;
+  }) => Promise<ContractResponse>;
+  fee: () => Promise<Coin>;
+  rgCodeId: () => Promise<Uint64>;
   verifier: () => Promise<Addr>;
   adapter: () => Promise<Addr>;
 }
@@ -88,6 +96,9 @@ export class LaunchpadQueryClient implements LaunchpadReadOnlyInterface {
     this.client = client;
     this.contractAddress = contractAddress;
     this.registeredContracts = this.registeredContracts.bind(this);
+    this.registeredContract = this.registeredContract.bind(this);
+    this.fee = this.fee.bind(this);
+    this.rgCodeId = this.rgCodeId.bind(this);
     this.verifier = this.verifier.bind(this);
     this.adapter = this.adapter.bind(this);
   }
@@ -107,6 +118,27 @@ export class LaunchpadQueryClient implements LaunchpadReadOnlyInterface {
         limit,
         start_after: startAfter,
       },
+    });
+  };
+  registeredContract = async ({
+    address,
+  }: {
+    address: string;
+  }): Promise<ContractResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      registered_contract: {
+        address,
+      },
+    });
+  };
+  fee = async (): Promise<Coin> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      fee: {},
+    });
+  };
+  rgCodeId = async (): Promise<Uint64> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      rg_code_id: {},
     });
   };
   verifier = async (): Promise<Addr> => {

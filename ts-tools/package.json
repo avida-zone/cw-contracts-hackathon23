@@ -8,7 +8,7 @@
     "deploy": "ts-node ./deploy.ts",
     "create-rgTokens": "ts-node ./create-rgtokens.ts",
     "create-account": "ts-node ./create_account_plugin.ts",
-    "test": "jest ./tests/mint_new_rg.spec.ts --runInBand && jest ./tests/adapt_new_rg.spec.ts --runInBand && jest ./tests/transform.spec.ts",
+    "test": "jest ./tests/mint_new_rg.spec.ts --runInBand && jest ./tests/transform.spec.ts && jest ./tests/adapt_rg.spec.ts --runInBand",
     "test-mint": "jest ./tests/mint_new_rg.spec.ts --runInBand",
     "test-adapt-unadapt": "jest ./tests/adapt_rg.spec.ts",
     "test-transform-revert": "jest ./tests/transform.spec.ts",

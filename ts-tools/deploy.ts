@@ -50,85 +50,85 @@ interface CodeIds {
     simulateTx: true,
   });
 
-  // // ========================================
-  // //
-  // //  Instntiate launchpad
-  // //
-  // //  ========================================
-  // let msg = MsgInstantiateContract.fromJSON({
-  //   sender: admin.address,
-  //   codeId: avidaLaunchpadCodeId,
-  //   label: "AVIPAD",
-  //   admin: admin.address,
-  //   msg: { rg_cw20_code_id: rgCw20CodeId },
-  // });
-
-  // let txResponse = await adminClient.broadcast({
-  //   msgs: msg,
-  //   injectiveAddress: admin.address,
-  // });
-
-  // const launchpadAddr = extractValueFromEvent(
-  //   txResponse.rawLog,
-  //   "cosmwasm.wasm.v1.EventContractInstantiated",
-  //   "contract_address"
-  // );
-  // console.log("1. Instantiated launchpad Addr: ", launchpadAddr);
-
-  // /// ========================================
-  // //
-  // //  Instntiate vc-verifier
-  // //
-  // //  ========================================
-  // //  dev:
-  // //  These are static for vc verifier
-  // let vcVerifierInsMsg: VcVerifierInstMsg = {
-  //   vectis_sub_proof_request: getSubProofReq(
-  //     "./registry_info/wallet_sub_proof_request.json"
-  //   ),
-  //   vectis_cred_schema: getCredentialSchema(
-  //     "./registry_info/wallet_credential_schema.json"
-  //   ),
-  //   vectis_non_cred_schema: getNonCredentialSchema(
-  //     "./registry_info/wallet_non_credential_schema.json"
-  //   ),
-  //   launchpad: launchpadAddr,
-  // };
-
-  // let verifierMsg = MsgInstantiateContract.fromJSON({
-  //   sender: admin.address,
-  //   codeId: vcVerifierCodeId,
-  //   label: "AVIDA VC Verifier",
-  //   admin: admin.address,
-  //   msg: vcVerifierInsMsg,
-  // });
-
-  // txResponse = await adminClient.broadcast({
-  //   msgs: verifierMsg,
-  //   injectiveAddress: admin.address,
-  // });
-
-  // const vcVerifierAddr = extractValueFromEvent(
-  //   txResponse.rawLog,
-  //   "cosmwasm.wasm.v1.EventContractInstantiated",
-  //   "contract_address"
-  // );
-  // console.log("2. Instantiated VcVerifier Addr: ", vcVerifierAddr);
+  // ========================================
   //
-  const {
+  //  Instntiate launchpad
+  //
+  //  ========================================
+  let msg = MsgInstantiateContract.fromJSON({
+    sender: admin.address,
+    codeId: avidaLaunchpadCodeId,
+    label: "AVIPAD",
+    admin: admin.address,
+    msg: { rg_cw20_code_id: rgCw20CodeId },
+  });
+
+  let txResponse = await adminClient.broadcast({
+    msgs: msg,
+    injectiveAddress: admin.address,
+  });
+
+  const launchpadAddr = extractValueFromEvent(
+    txResponse.rawLog,
+    "cosmwasm.wasm.v1.EventContractInstantiated",
+    "contract_address"
+  );
+  console.log("1. Instantiated launchpad Addr: ", launchpadAddr);
+
+  /// ========================================
+  //
+  //  Instntiate vc-verifier
+  //
+  //  ========================================
+  //  dev:
+  //  These are static for vc verifier
+  let vcVerifierInsMsg: VcVerifierInstMsg = {
+    vectis_sub_proof_request: getSubProofReq(
+      "./registry_info/wallet_sub_proof_request.json"
+    ),
+    vectis_cred_schema: getCredentialSchema(
+      "./registry_info/wallet_credential_schema.json"
+    ),
+    vectis_non_cred_schema: getNonCredentialSchema(
+      "./registry_info/wallet_non_credential_schema.json"
+    ),
     launchpad: launchpadAddr,
-    vcverifier: vcVerifierAddr,
-    adapter: oldadapterAddr,
-  } = (await import(
-    "./deploy/injective-testnet-deployInfo.json"
-  )) as ContractsInterface;
+  };
+
+  let verifierMsg = MsgInstantiateContract.fromJSON({
+    sender: admin.address,
+    codeId: vcVerifierCodeId,
+    label: "AVIDA VC Verifier",
+    admin: admin.address,
+    msg: vcVerifierInsMsg,
+  });
+
+  txResponse = await adminClient.broadcast({
+    msgs: verifierMsg,
+    injectiveAddress: admin.address,
+  });
+
+  const vcVerifierAddr = extractValueFromEvent(
+    txResponse.rawLog,
+    "cosmwasm.wasm.v1.EventContractInstantiated",
+    "contract_address"
+  );
+  console.log("2. Instantiated VcVerifier Addr: ", vcVerifierAddr);
+
+  //const {
+  //  launchpad: launchpadAddr,
+  //  vcverifier: vcVerifierAddr,
+  //  adapter: oldadapterAddr,
+  //} = (await import(
+  //  "./deploy/injective-testnet-deployInfo.json"
+  //)) as ContractsInterface;
 
   // =========================================
   //
   // Instantiate adapter
   //
   // =========================================
-  //
+
   let adapterInstMsg: AdapterInstMsg = {
     launchpad: launchpadAddr,
   };
@@ -143,7 +143,7 @@ interface CodeIds {
     msg: adapterInstMsg,
   });
 
-  let txResponse = await adminClient.broadcast({
+  txResponse = await adminClient.broadcast({
     msgs: adapterMsg,
     injectiveAddress: admin.address,
   });
@@ -155,43 +155,41 @@ interface CodeIds {
   );
   console.log("3. Instantiated Adapter Addr: ", adapterAddr);
 
-  // const contracts: ContractsInterface = {
-  //   launchpad: launchpadAddr,
-  //   vcverifier: vcVerifierAddr,
-  //   adapter: adapterAddr,
-  // };
+  const contracts: ContractsInterface = {
+    launchpad: launchpadAddr,
+    vcverifier: vcVerifierAddr,
+    adapter: adapterAddr,
+  };
 
-  // writeToFile(
-  //   `./deploy/injective-testnet-deployInfo.json`,
-  //   JSON.stringify(contracts, null, 2)
-  // );
+  writeToFile(
+    `./deploy/injective-testnet-deployInfo.json`,
+    JSON.stringify(contracts, null, 2)
+  );
 
-  // //===========================================
-  // //
-  // // UPDATE launchpad with verifier and adapter
-  // //
-  // // ==========================================
+  //===========================================
+  //
+  // UPDATE launchpad with verifier and adapter
+  //
+  // ==========================================
 
-  //let qs = new QueryService(Network.Testnet, endpoints);
+  let update_verifier_msg: LaunchpadExecMsg = {
+    update_verifier: {
+      address: vcVerifierAddr,
+    },
+  };
 
-  //let update_verifier_msg: LaunchpadExecMsg = {
-  //  update_verifier: {
-  //    address: vcVerifierAddr,
-  //  },
-  //};
+  let update = MsgExecuteContract.fromJSON({
+    contractAddress: launchpadAddr,
+    sender: admin.address,
+    msg: update_verifier_msg,
+  });
 
-  //let update = MsgExecuteContract.fromJSON({
-  //  contractAddress: launchpadAddr,
-  //  sender: admin.address,
-  //  msg: update_verifier_msg,
-  //});
+  let res = await adminClient.broadcast({
+    msgs: update,
+    injectiveAddress: admin.address,
+  });
 
-  //let res = await adminClient.broadcast({
-  //  msgs: update,
-  //  injectiveAddress: admin.address,
-  //});
-
-  //console.log("UPDATE VERFIER: \n ", res);
+  console.log("UPDATE VERFIER: \n ", res);
 
   let update_adapter_msg: LaunchpadExecMsg = {
     update_adapter: {
@@ -199,13 +197,13 @@ interface CodeIds {
     },
   };
 
-  let update = MsgExecuteContract.fromJSON({
+  update = MsgExecuteContract.fromJSON({
     contractAddress: launchpadAddr,
     sender: admin.address,
     msg: update_adapter_msg,
   });
 
-  let res = await adminClient.broadcast({
+  res = await adminClient.broadcast({
     msgs: update,
     injectiveAddress: admin.address,
   });

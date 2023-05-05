@@ -2,6 +2,7 @@ import {
   MsgBroadcasterWithPk,
   MsgExecuteContract,
   PrivateKey,
+  MsgSend,
 } from "@injectivelabs/sdk-ts";
 import { getNetworkEndpoints, Network } from "@injectivelabs/networks";
 import { accounts } from "../accounts";
@@ -29,8 +30,7 @@ describe("Transform inj to rgInj and back: ", () => {
   let launchpad: string;
   let wallet: string;
   let rg1_transform_addr: string;
-  let adaptAmount: string;
-  let mintAmount: string;
+  let transformAmount: string;
 
   beforeAll(async () => {
     userAddr = accounts.user.address;
@@ -56,7 +56,7 @@ describe("Transform inj to rgInj and back: ", () => {
 
     let transform_token = await import("../deploy/rg1_transform_address.json");
     rg1_transform_addr = transform_token.default;
-    mintAmount = "30";
+    transformAmount = "30";
   });
 
   it("should not able to transform token with wrong proof", async () => {
@@ -78,7 +78,7 @@ describe("Transform inj to rgInj and back: ", () => {
       wasm: {
         execute: {
           contract_addr: launchpad,
-          funds: [{ denom: "inj", amount: mintAmount }],
+          funds: [{ denom: "inj", amount: transformAmount }],
           msg: toCosmosMsg(transform_msg),
         },
       },
@@ -88,7 +88,7 @@ describe("Transform inj to rgInj and back: ", () => {
       contractAddress: wallet,
       sender: userAddr,
       msg: { execute: { msgs: [proxy_msg] } },
-      funds: { denom: "inj", amount: mintAmount },
+      funds: { denom: "inj", amount: transformAmount },
     });
 
     await expect(
@@ -100,6 +100,18 @@ describe("Transform inj to rgInj and back: ", () => {
   });
 
   it("should be able to tranform to RG token", async () => {
+    // lets make sure the wallet has some funds
+    let bank = MsgSend.fromJSON({
+      amount: { denom: "inj", amount: transformAmount },
+      srcInjectiveAddress: userAddr,
+      dstInjectiveAddress: wallet,
+    });
+
+    await client.broadcast({
+      msgs: bank,
+      injectiveAddress: userAddr,
+    });
+
     const initNonce: string = await qs.queryWasm(rg1_transform_addr, {
       proof_nonce: { address: wallet },
     });
@@ -123,13 +135,15 @@ describe("Transform inj to rgInj and back: ", () => {
     let proxy_msg: ProxyT.CosmosMsgForEmpty = {
       wasm: {
         execute: {
-          contract_addr: rg1_transform_addr,
-          funds: [{ denom: "inj", amount: mintAmount }],
+          contract_addr: launchpad,
+          funds: [{ denom: "inj", amount: transformAmount }],
           msg: toCosmosMsg(transform_msg),
         },
       },
     };
 
+    // We should not send fund here
+    // it should be from the proxy.
     let adapt = MsgExecuteContract.fromJSON({
       contractAddress: wallet,
       sender: userAddr,
@@ -152,11 +166,18 @@ describe("Transform inj to rgInj and back: ", () => {
     );
     const afterTfBalance = await qs.queryBalance(wallet, "inj");
 
+    console.log(initNonce);
+    console.log(afterNonce);
+    console.log("init: ", initRgBalance);
+    console.log("after: ", afterRgBalance);
+    console.log("init tf: ", initTfBalance);
+    console.log("after tf: ", afterTfBalance);
+
     expect(+afterNonce).toEqual(+initNonce + 1);
     expect(+afterRgBalance.balance).toEqual(
-      +initRgBalance.balance - +adaptAmount
+      +initRgBalance.balance + +transformAmount
     );
-    expect(+afterTfBalance).toEqual(+initTfBalance + +adaptAmount);
+    expect(+afterTfBalance).toEqual(+initTfBalance - +transformAmount);
   });
 
   it("should be able to revert transform token", async () => {
@@ -174,7 +195,7 @@ describe("Transform inj to rgInj and back: ", () => {
 
     let revert_msg: RgCw20ExecMsg = {
       burn: {
-        amount: mintAmount,
+        amount: transformAmount,
         proof,
       },
     };
@@ -209,8 +230,8 @@ describe("Transform inj to rgInj and back: ", () => {
     const afterTfBalance = await qs.queryBalance(wallet, "inj");
 
     expect(+afterRgBalance.balance).toEqual(
-      +initRgBalance.balance + +adaptAmount
+      +initRgBalance.balance - +transformAmount
     );
-    expect(+afterTfBalance).toEqual(+initTfBalance - +adaptAmount);
+    expect(+afterTfBalance).toEqual(+initTfBalance + +transformAmount);
   });
 });
