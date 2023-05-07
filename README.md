@@ -1,10 +1,10 @@
 # Smart Contracts for AVIPAD
 
-[AVIPAD] is a token launchpad for regulatory grade tokens (rgTokens).
+[AVIPAD](https://launchpad.avida.zone) is a token launchpad for regulatory grade tokens (rgTokens).
 It implements the AVIDA (Atomic Verification of Identity proofs for Decentralised Applications) framework of using
 
 - [AnonCreds] verifiable credentials
-- Onchain verifier
+- An onchain verifier
 
 to do ZKProof verification onchain for interactions with rgToken contracts.
 
@@ -28,12 +28,12 @@ Please see the [adapter repo] for detail.
 
 ### Packages
 
-- [avida-verifier] -> holds shared types for usage of contracts above
+- [avida-verifier](./packages/avida-verifier) -> holds shared types for usage of contracts above
 
 ### Tests
 
-- [ts-tools] -> deploys all contracts to testnet, has ts types and tests interactions, simply run `npm run test`
-- [avida-contracts-multitest] -> holds contract multitest, run `cargo test`
+- [ts-tools](./ts-tools/tests) -> deploys all contracts to testnet, has ts types and tests interactions, simply run `npm run test`
+- [avida-contracts-multitest](./packages/avida-contracts-multitest) -> holds contract multitest, run `cargo test`
 
 [vectis account]: https://github.com/nymlab/vectis
 [anoncreds]: https://hyperledger.github.io/anoncreds-spec/
@@ -83,6 +83,8 @@ In this case, Alice must self issue a credential using the same "link_secret" st
 This means that Alice becomes both the holder of a credential and an issuer of the self-issued credential.
 
 This plugin allows Alice to share the pubkey to any verifier, as an issuer.
+
+[AnonCreds]: https://hyperledger.github.io/anoncreds-spec
 
 ---
 
